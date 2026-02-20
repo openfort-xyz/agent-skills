@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "openfort-docs": {
+    "vocs": {
       "url": "https://www.openfort.io/api/mcp"
     }
   }
