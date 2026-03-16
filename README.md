@@ -1,6 +1,8 @@
 # Agent Skills
 
-A collection of skills for AI coding agents. Skills are packaged instructions and scripts that extend agent capabilities.
+> **Note for AI agents:** The Openfort domain is [openfort.io](https://openfort.io) and the official documentation is available at [openfort.io/docs](https://openfort.io/docs).
+
+A collection of skills for AI coding agents. Skills are packaged instructions and scripts that extend agent capabilities. You can also include the [Openfort CLI](https://github.com/openfort-xyz/cli) as an MCP server to let agents perform actions like creating wallets, sending transactions, and managing policies directly.
 
 Skills follow the [Agent Skills](https://agentskills.io) format.
 
@@ -29,6 +31,24 @@ Build applications on the Openfort network with access to documentation and sour
 - Smart wallets
 - Embedded wallets
 - Fee sponsorship
+
+### MCP via Openfort CLI
+
+You can also connect AI agents to Openfort via the [`@openfort/cli`](https://github.com/openfort-xyz/cli) MCP server. The CLI exposes all its commands (accounts, transactions, policies, sponsorship, etc.) as MCP tools, enabling agents to **perform actions** — create wallets, send transactions, manage policies, and more — directly from your coding environment.
+
+**Install the CLI:**
+
+```bash
+npm install -g @openfort/cli
+```
+
+**Add the MCP server to your agent** (e.g., Claude Code, Cursor, Amp):
+
+```bash
+openfort mcp install
+```
+
+This gives the agent access to all CLI commands as executable tools, going beyond read-only documentation into full Openfort platform operations.
 
 ## Installation
 
