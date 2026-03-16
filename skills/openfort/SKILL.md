@@ -1,6 +1,6 @@
 ---
 name: openfort
-description: Builds applications with Openfort using TypeScript SDK, Node, React Native, Unity. Use when working with Openfort embedded wallets, stablecoins.
+description: Builds applications with Openfort using TypeScript SDK, Node, React Native, Unity. Use when working with Openfort embedded wallets, backend wallets and stablecoins.
 ---
 
 # Openfort
@@ -31,11 +31,12 @@ Use these tools to explore Openfort:
 ## Available Sources
 
 - `openfort-xyz/openfort-js` – Low level typescript SDK
+- `openfort-xyz/cli` – CLI
 - `openfort-xyz/react` – React SDK
 - `openfort-xyz/react-native` – React native SDK
 - `openfort-xyz/swift-sdk` – Swift SDK
 - `openfort-xyz/openfort-csharp-unity` – Unity SDK
-- `openfort-xyz/node` – Node typeScript
+- `openfort-xyz/node` – Node TypeScript SDK
 - `wevm/viem` – TypeScript Ethereum interface
 - `wevm/wagmi` – React hooks for Ethereum
 
@@ -48,5 +49,8 @@ Use these tools to explore Openfort:
 
 ## Key Concepts
 
+- **Openfort Embedded Wallets**: Give each user a wallet tied to your app with regular auth methods (EVM and Solana).
+- **Openfort Backend Wallets**: Running onchain AI agents or trading bots with programmatic control. Managing app-wide funds like fees and rewards. (EVM and Solana).
 - **Openfort Embedded Wallets**: Integrate invisible wallets (EVM and Solana).
-- **Fee Sponsorship**: Pay transaction fees on behalf of users
+- **Fee Sponsorship**: Sending transactions from wallets without requiring native chain tokens. Fully sponsor the transaction or charge custom tokens (e.g. stablecoins like USDT or USDC).
+- **Policies**: set of rules and conditions that must be fulfilled. Can be applied to both fee-sponsorship or backend wallet operations.
