@@ -13,6 +13,7 @@ Build applications on the Openfort network with access to documentation and sour
 **Use when:**
 
 - Working with Openfort embedded wallets
+- Working with Openfort backend wallets
 - Integrating stablecoins or payments
 - Building on the Openfort protocol
 - Exploring Openfort source code
@@ -20,7 +21,7 @@ Build applications on the Openfort network with access to documentation and sour
 **Features:**
 
 - Search and read Openfort documentation
-- Browse source code for [`openfort-xyz/openfort-js`](https://github.com/openfort-xyz/openfort-js) (low level library),  [`openfort-xyz/openfort-react`](https://github.com/openfort-xyz/openfort-react) (TypeScript React SDK + Examples), [`openfort-xyz/react-native`](https://github.com/openfort-xyz/openfort-react) (TypeScript React SDK + Examples), [`openfort-xyz/openfort-csharp-unity`](https://github.com/openfort-xyz/openfort-csharp-unity) (Unity SDK + Example)  and [openfort-xyz/swift-sdk](https://github.com/openfort-xyz/swift-sdk)
+- Browse source code for [`openfort-xyz/openfort-js`](https://github.com/openfort-xyz/openfort-js) (low level js library),  [`openfort-xyz/openfort-react`](https://github.com/openfort-xyz/openfort-react) (TypeScript React SDK + Examples), [`openfort-xyz/react-native`](https://github.com/openfort-xyz/openfort-react) (TypeScript React SDK + Examples), [`openfort-xyz/openfort-csharp-unity`](https://github.com/openfort-xyz/openfort-csharp-unity) (Unity SDK + Example)  and [openfort-xyz/swift-sdk](https://github.com/openfort-xyz/swift-sdk)
 - Access related libraries: [Viem](https://viem.sh), [Wagmi](https://wagmi.sh)
 
 **Categories covered:**
@@ -63,6 +64,9 @@ Skills are automatically available once installed. The agent will use them when 
 
 ```
 How do I add embedded wallets?
+```
+```
+How do I send a transaction from a backend wallet?
 ```
 ```
 Show me how fee sponsorship works in Viem
