@@ -1,38 +1,39 @@
 ---
 name: openfort
-description: Builds applications with Openfort using TypeScript SDK, Node, React Native, Unity. Use when working with Openfort embedded wallets, backend wallets and stablecoins.
+description: >
+  Always use this skill when the user wants to explore Openfort documentation, browse SDK source
+  code, or use Openfort MCP tools. This is the general-purpose Openfort platform skill — use it
+  for documentation lookup, source code navigation, and CLI operations. For building with
+  embedded wallets, use the openfort-embedded-wallet skill. For backend wallets, use the
+  openfort-backend-wallets skill.
+  Trigger on: "Openfort docs", "search Openfort", "Openfort source code", "openfort CLI",
+  "MCP tools", "Openfort SDK source", or general Openfort platform questions.
+license: MIT
+metadata:
+  author: Openfort
+  version: "1.0.0"
+  homepage: https://openfort.io/docs
+  source: https://github.com/openfort-xyz/agent-skills
+inputs:
+  - name: OPENFORT_API_KEY
+    description: "Openfort API key for CLI authentication (run 'openfort login' to configure)"
+    required: false
+references:
+  - mcp-tools.md
 ---
 
 # Openfort
 
-Skill for building applications with Openfort wallets.
+Skill for navigating Openfort documentation, browsing SDK source code, and executing platform operations via MCP tools.
 
 ## Capabilities
 
-- Navigate Openfort documentation and SDKs.
-- Browse source code for openfort-xyz/openfort-js (low level typescript library), openfort-xyz/openfort-react (React TypeScript SDK), openfort-xyz/react-native (React Native SDK), openfort-xyz/node (TypeScript Node SDK), openfort-xyz/openfort-csharp-unity (Unity SDK), openfort-xyz/swift-sdk (Swift SDK), 
+- Navigate Openfort documentation and SDKs
+- Browse source code for openfort-xyz/openfort-js (low level typescript library), openfort-xyz/openfort-react (React TypeScript SDK), openfort-xyz/react-native (React Native SDK), openfort-xyz/node (TypeScript Node SDK), openfort-xyz/openfort-csharp-unity (Unity SDK), openfort-xyz/swift-sdk (Swift SDK)
 - Access related libraries: viem, wagmi
+- Execute Openfort CLI commands via MCP tools
 
-## MCP Tools
-
-### Documentation (read-only)
-
-Use these tools to explore Openfort docs and source code:
-
-| Tool                           | Description                        |
-| ------------------------------ | ---------------------------------- |
-| `mcp__openfort-docs__list_pages`        | List all documentation pages       |
-| `mcp__openfort-docs__read_page`         | Read a specific documentation page |
-| `mcp__openfort-docs__search_docs`       | Search documentation               |
-| `mcp__openfort-docs__list_sources`      | List available source repositories |
-| `mcp__openfort-docs__list_source_files` | List files in a directory          |
-| `mcp__openfort-docs__read_source_file`  | Read a source code file            |
-| `mcp__openfort-docs__get_file_tree`     | Get recursive file tree            |
-| `mcp__openfort-docs__search_source`     | Search source code                 |
-
-### Openfort CLI (actions)
-
-The `@openfort/cli` MCP server exposes all CLI commands as tools, enabling the agent to perform platform operations directly — create wallets, send transactions, manage policies, sponsorship, contracts, sessions, subscriptions, and more. Requires `@openfort/cli` installed and authenticated (`openfort login`). Tool names follow the pattern `mcp__openfort__<command>` (e.g., `mcp__openfort__accounts_evm_create`).
+For MCP tool details, see `references/mcp-tools.md`.
 
 ## Available Sources
 
@@ -57,6 +58,5 @@ The `@openfort/cli` MCP server exposes all CLI commands as tools, enabling the a
 
 - **Openfort Embedded Wallets**: Give each user a wallet tied to your app with regular auth methods (EVM and Solana).
 - **Openfort Backend Wallets**: Running onchain AI agents or trading bots with programmatic control. Managing app-wide funds like fees and rewards. (EVM and Solana).
-- **Openfort Embedded Wallets**: Integrate invisible wallets (EVM and Solana).
 - **Fee Sponsorship**: Sending transactions from wallets without requiring native chain tokens. Fully sponsor the transaction or charge custom tokens (e.g. stablecoins like USDT or USDC).
 - **Policies**: set of rules and conditions that must be fulfilled. Can be applied to both fee-sponsorship or backend wallet operations.

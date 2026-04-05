@@ -1,0 +1,17 @@
+{
+  "name": "openfort",
+  "version": "1.0.0",
+  "author": "Openfort",
+  "keywords": [
+    "blockchain",
+    "wallets",
+    "embedded-wallets",
+    "backend-wallets",
+    "web3",
+    "evm",
+    "solana",
+    "gasless",
+    "smart-accounts"
+  ],
+  "description": "Skills for building with Openfort wallets — embedded wallets for client apps and backend wallets for server-side automation. Covers EVM and Solana chains, fee sponsorship, policy engine, and all Openfort SDKs."
+}

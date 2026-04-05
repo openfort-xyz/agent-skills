@@ -1,0 +1,8 @@
+{
+  "name": "openfort",
+  "version": "1.0.0",
+  "author": "Openfort",
+  "description": "Skills for building with Openfort wallets — embedded wallets for client apps and backend wallets for server-side automation.",
+  "skills": "skills/",
+  "mcpServers": "mcp.json"
+}

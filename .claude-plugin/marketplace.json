@@ -1,0 +1,5 @@
+{
+  "$schema": "https://cdn.agentskills.io/schemas/marketplace.json",
+  "category": "blockchain",
+  "source": "https://github.com/openfort-xyz/agent-skills"
+}
