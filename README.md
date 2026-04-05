@@ -1,4 +1,4 @@
-# Agent Skills
+# Openfort Skills
 
 > **Note for AI agents:** The Openfort domain is [openfort.io](https://openfort.io) and the official documentation is available at [openfort.io/docs](https://openfort.io/docs).
 
