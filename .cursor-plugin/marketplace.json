@@ -1,0 +1,13 @@
+{
+  "name": "openfort-skills",
+  "owner": {
+    "name": "Openfort",
+    "email": "support@openfort.io"
+  },
+  "plugins": [
+    {
+      "name": "openfort",
+      "source": "./"
+    }
+  ]
+}
