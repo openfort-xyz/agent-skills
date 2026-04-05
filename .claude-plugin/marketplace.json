@@ -1,5 +1,18 @@
 {
-  "$schema": "https://cdn.agentskills.io/schemas/marketplace.json",
-  "category": "blockchain",
-  "source": "https://github.com/openfort-xyz/agent-skills"
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "openfort-skills",
+  "metadata": {
+    "description": "Openfort wallet skills for Claude Code"
+  },
+  "owner": {
+    "name": "Openfort",
+    "email": "support@openfort.io"
+  },
+  "plugins": [
+    {
+      "name": "openfort",
+      "source": "./",
+      "category": "developer-tools"
+    }
+  ]
 }

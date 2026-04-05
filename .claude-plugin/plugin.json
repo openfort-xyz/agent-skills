@@ -1,17 +1,13 @@
 {
   "name": "openfort",
+  "description": "Skills and MCP server for the Openfort platform — embedded wallets, backend wallets, fee sponsorship, policy engine, and all Openfort SDKs.",
   "version": "1.0.0",
-  "author": "Openfort",
-  "keywords": [
-    "blockchain",
-    "wallets",
-    "embedded-wallets",
-    "backend-wallets",
-    "web3",
-    "evm",
-    "solana",
-    "gasless",
-    "smart-accounts"
-  ],
-  "description": "Skills for building with Openfort wallets — embedded wallets for client apps and backend wallets for server-side automation. Covers EVM and Solana chains, fee sponsorship, policy engine, and all Openfort SDKs."
+  "author": {
+    "name": "Openfort",
+    "url": "https://openfort.io"
+  },
+  "homepage": "https://openfort.io",
+  "repository": "https://github.com/openfort-xyz/agent-skills",
+  "license": "MIT",
+  "keywords": ["blockchain", "wallets", "embedded-wallets", "backend-wallets", "web3", "evm", "solana"]
 }

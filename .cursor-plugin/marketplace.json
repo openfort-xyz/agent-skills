@@ -1,4 +1,13 @@
 {
-  "$schema": "https://cdn.agentskills.io/schemas/marketplace.json",
-  "category": "blockchain"
+  "name": "openfort-skills",
+  "owner": {
+    "name": "Openfort",
+    "email": "support@openfort.io"
+  },
+  "plugins": [
+    {
+      "name": "openfort",
+      "source": "./"
+    }
+  ]
 }
