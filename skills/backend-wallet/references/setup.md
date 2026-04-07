@@ -1,51 +1,34 @@
----
-name: openfort-backend-wallets
-description: >
-  Create and operate Openfort backend wallets (developer custody) for EVM and Solana from server-side code.
-  Use this skill whenever: creating backend wallets, sending transactions from server, importing/exporting
-  private keys with RSA encryption, signing data/messages/typed-data server-side, EIP-7702 delegation,
-  Solana transfers (SOL/SPL/USDC), gasless transactions, fee sponsorship, policy engine rules,
-  wallet secret auth, webhooks, or operating wallets programmatically without user interaction.
-  Trigger on: "backend wallet", "developer custody", "server-side wallet", "walletSecret",
-  "sendTransaction from backend", "import private key", "export private key", "EIP-7702",
-  "Solana transfer server", "gasless", "fee sponsorship", "policy rules", "batch transactions",
-  "sponsor gas", "webhook", or any server-side wallet operation with Openfort.
-license: MIT
-metadata:
-  author: Openfort
-  version: "1.0.0"
-  homepage: https://openfort.io/docs/products/server
-  source: https://github.com/openfort-xyz/agent-skills
-inputs:
-  - name: OPENFORT_API_KEY
-    description: "Openfort API Secret Key (sk_test_... or sk_live_...) for server-side authentication"
-    required: true
-  - name: OPENFORT_WALLET_SECRET
-    description: "EC P-256 private key for wallet-level authentication (two-layer auth)"
-    required: true
-  - name: OPENFORT_PUBLISHABLE_KEY
-    description: "Publishable key (pk_test_...) — required for Solana gasless operations"
-    required: false
-references:
-  - evm-wallets.md
-  - solana-wallets.md
-  - fee-sponsorship.md
-  - policy-engine.md
----
+# Openfort Backend Wallet Setup
 
-# Openfort Backend Wallets (Developer Custody)
+Backend wallets are server-controlled wallets for automated blockchain operations — no user interaction required. Private keys are stored in **hardware-backed secure enclaves** and never leave the secure environment.
 
-Backend wallets are server-controlled EOAs for automated blockchain operations — no user interaction required. Private keys are stored in **hardware-backed secure enclaves** and never leave the secure environment.
+Openfort backend wallets support **both EVM (Ethereum, Base, Polygon, etc.) and Solana** chains from a single SDK.
 
-**When to use backend wallets** (vs embedded wallets):
-- Server-side automation: treasury ops, batch minting, payroll, airdrops
-- AI agent wallets: autonomous trading, payment processing
-- Programmatic signing: no browser or user present
-- Cross-border payments: automated stablecoin disbursement
+## When to Use Backend Wallets
 
-**When to use embedded wallets instead:**
-- User-facing wallets where the user controls the key
-- Browser/mobile signing flows with user approval
+| Use case | Backend wallet | Embedded wallet |
+|----------|:-:|:-:|
+| Server-side automation (treasury, minting, payroll, airdrops) | ✓ | |
+| AI agent wallets (autonomous trading, payment processing) | ✓ | |
+| Programmatic signing (no browser or user present) | ✓ | |
+| Cross-border payments (automated stablecoin disbursement) | ✓ | |
+| User-facing wallets (user controls the key) | | ✓ |
+| Browser/mobile signing with user approval | | ✓ |
+
+## Prerequisites
+
+Get your credentials from the [Openfort Dashboard](https://dashboard.openfort.io):
+
+1. **API Secret Key** (`sk_test_...` or `sk_live_...`) — from the API Keys page
+2. **Wallet Secret** — generate under Backend Wallet Keys. **Save the private key** — you won't see it again
+3. **Publishable Key** (`pk_test_...`) — required for Solana gasless operations
+
+## SDK
+
+Backend wallets use the **Node.js server SDK** (`@openfort/openfort-node`). This runs on your backend — never expose secret keys on the frontend.
+
+> **Documentation**: https://www.openfort.io/docs/products/server
+> **SDK examples**: https://github.com/openfort-xyz/openfort-node/tree/main/examples
 
 ## Setup
 
@@ -100,7 +83,7 @@ The SDK handles auth generation transparently — just provide `walletSecret` at
 
 ```ts
 const account = await openfort.accounts.evm.backend.create({
-  wallet: 'pla_...', // Optional — associates the wallet with a player
+  name: 'Treasury Wallet', // Optional
 })
 // account.id       — 'acc_...'
 // account.address  — '0x...' (viem Address type)
@@ -112,8 +95,8 @@ const account = await openfort.accounts.evm.backend.create({
 
 ```ts
 // List all EVM backend wallets (paginated)
-const { accounts, total, nextPageToken } = await openfort.accounts.evm.backend.list({
-  limit: 50,  // 1-100, default 10, optional
+const { accounts, total } = await openfort.accounts.evm.backend.list({
+  limit: 50,  // 1-100, optional
   skip: 0,    // optional
 })
 
@@ -202,59 +185,66 @@ Manually register EIP-7702 delegation without sending a transaction:
 ```ts
 const delegatedAccount = await openfort.accounts.evm.backend.update({
   walletId: account.walletId,
-  accountType: 'Delegated Account', // Required for EIP-7702 upgrade
   chainId: 84532,
   implementationType: 'Calibur',
   accountId: account.id,
 })
 ```
 
-### Import Private Key
+### Import Private Key (E2E Encrypted)
 
-The SDK handles E2E encryption internally — just provide the raw private key:
-
-```ts
-const imported = await openfort.accounts.evm.backend.import({
-  privateKey: '0xYourPrivateKeyHex', // hex string (with or without 0x prefix)
-})
-// imported.id, imported.address
-```
-
-> **Under the hood**: The SDK encrypts your private key with RSA-OAEP (SHA-256) using the server's public key before transit. The server holds the corresponding private key in a KMS HSM (non-extractable).
-
-#### Low-level encryption helpers (advanced)
-
-For manual encryption workflows (e.g., custom import pipelines), the SDK also exports:
+Keys are encrypted client-side before transit. The server key is non-extractable from secure hardware.
 
 ```ts
 import {
   generateRSAKeyPair,
   encryptForImport,
-  decryptExportedPrivateKey,
   IMPORT_ENCRYPTION_PUBLIC_KEY,
 } from '@openfort/openfort-node'
 
-// These are synchronous functions:
-const keyPair = generateRSAKeyPair()              // Returns { publicKey, privateKeyPem }
-const encrypted = encryptForImport('0xKey', IMPORT_ENCRYPTION_PUBLIC_KEY) // Returns base64 string
-const decrypted = decryptExportedPrivateKey(encryptedBase64, keyPair.privateKeyPem) // Returns hex string
+// Generate ephemeral RSA key pair for secure transfer
+const keyPair = await generateRSAKeyPair()
+
+// Encrypt private key with Openfort's public key
+const encryptedKey = await encryptForImport(
+  '0xYourPrivateKeyHex',
+  IMPORT_ENCRYPTION_PUBLIC_KEY,
+)
+
+// Import
+const imported = await openfort.accounts.evm.backend.import({
+  encryptedKey: encryptedKey,
+  ephemeralPublicKey: keyPair.publicKey,
+})
+// imported.id, imported.address
 ```
 
-### Export Private Key
-
-The SDK handles E2E decryption internally — returns the private key directly:
+### Export Private Key (E2E Encrypted)
 
 ```ts
-const privateKey = await openfort.accounts.evm.backend.export({
+import {
+  generateRSAKeyPair,
+  decryptExportedPrivateKey,
+} from '@openfort/openfort-node'
+
+const keyPair = await generateRSAKeyPair()
+
+const exported = await openfort.accounts.evm.backend.export({
   id: account.id,
+  publicKey: keyPair.publicKey,
 })
+
+const privateKey = await decryptExportedPrivateKey(
+  exported.encryptedKey,
+  keyPair.privateKeyPem,
+)
 // privateKey is hex string (no 0x prefix)
 ```
 
 ### Delete
 
 ```ts
-await openfort.accounts.evm.backend.delete(account.id)
+await openfort.accounts.evm.backend.delete({ id: account.id })
 // Permanently deletes wallet and private key — irreversible
 ```
 
@@ -268,9 +258,8 @@ await openfort.accounts.evm.backend.delete(account.id)
 
 ```ts
 const account = await openfort.accounts.solana.backend.create({
-  wallet: 'pla_...', // Optional — associates the wallet with a player
+  name: 'SOL Treasury',
 })
-// account.id      — 'acc_...'
 // account.address — Base58 Solana address
 // account.custody — 'Developer'
 ```
@@ -278,9 +267,9 @@ const account = await openfort.accounts.solana.backend.create({
 ### List & Get
 
 ```ts
-const { accounts, total, nextPageToken } = await openfort.accounts.solana.backend.list({
-  limit: 50,  // 1-100, default 10, optional
-  skip: 0,    // optional
+const { accounts, total } = await openfort.accounts.solana.backend.list({
+  limit: 50,
+  skip: 0,
 })
 
 const account = await openfort.accounts.solana.backend.get({
@@ -385,18 +374,34 @@ const sig2 = await account.signTransaction({ transaction: base64Tx })
 
 ### Import / Export (Solana)
 
-Same simplified flow as EVM — encryption is handled internally. Solana import accepts base58, hex with 0x, or raw hex. Auto-expands 32-byte seeds to 64-byte keypairs. Export returns base58 (standard Solana format).
+Same E2E encrypted flow as EVM. Solana import accepts base58, hex with 0x, or raw hex. Auto-expands 32-byte seeds to 64-byte keypairs. Export returns base58 (standard Solana format).
 
 ```ts
+import {
+  generateRSAKeyPair,
+  encryptForImport,
+  decryptExportedPrivateKey,
+  IMPORT_ENCRYPTION_PUBLIC_KEY,
+} from '@openfort/openfort-node'
+
 // Import
+const keyPair = await generateRSAKeyPair()
+const encryptedKey = await encryptForImport(
+  '0xYourPrivateKeyHex',
+  IMPORT_ENCRYPTION_PUBLIC_KEY,
+)
 const imported = await openfort.accounts.solana.backend.import({
-  privateKey: '4YFq9y5f5hi77Bq8kDCE6VgqoAq...', // base58, hex with 0x, or raw hex
+  encryptedKey,
+  ephemeralPublicKey: keyPair.publicKey,
 })
 
 // Export
-const privateKey = await openfort.accounts.solana.backend.export({
+const kp = await generateRSAKeyPair()
+const exported = await openfort.accounts.solana.backend.export({
   id: account.id,
+  publicKey: kp.publicKey,
 })
+const privateKey = await decryptExportedPrivateKey(exported.encryptedKey, kp.privateKeyPem)
 // privateKey is base58-encoded (standard Solana format)
 ```
 
@@ -668,6 +673,7 @@ const estimate = await openfort.transactionIntents.estimateCost({
 
 ```ts
 import Openfort from '@openfort/openfort-node'
+import { generateRSAKeyPair, decryptExportedPrivateKey } from '@openfort/openfort-node'
 
 const openfort = new Openfort(process.env.OPENFORT_API_KEY!, {
   walletSecret: process.env.OPENFORT_WALLET_SECRET!,
@@ -675,7 +681,7 @@ const openfort = new Openfort(process.env.OPENFORT_API_KEY!, {
 })
 
 // 1. Create wallet
-const wallet = await openfort.accounts.evm.backend.create()
+const wallet = await openfort.accounts.evm.backend.create({ name: 'Escrow' })
 console.log('Created:', wallet.address)
 
 // 2. Set up gas sponsorship (policy + fee sponsorship)
@@ -713,8 +719,9 @@ const tx = await openfort.accounts.evm.backend.sendTransaction({
 console.log('TX:', tx.response?.transactionHash)
 
 // 4. Export key if needed
-const pk = await openfort.accounts.evm.backend.export({ id: wallet.id })
-// pk is hex string (no 0x prefix)
+const kp = await generateRSAKeyPair()
+const exp = await openfort.accounts.evm.backend.export({ id: wallet.id, publicKey: kp.publicKey })
+const pk = await decryptExportedPrivateKey(exp.encryptedKey, kp.privateKeyPem)
 ```
 
 ---

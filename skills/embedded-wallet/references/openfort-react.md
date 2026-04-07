@@ -284,7 +284,7 @@ npm install @openfort/react @tanstack/react-query wagmi viem
 
 ```env
 VITE_OPENFORT_PUBLISHABLE_KEY=pk_test_...       # From https://dashboard.openfort.io
-VITE_SHIELD_PUBLISHABLE_KEY=shield_pk_...        # Shield public key from dashboard
+VITE_SHIELD_PUBLISHABLE_KEY=your-shield-publishable-key        # Shield public key from dashboard
 VITE_WALLET_CONNECT_PROJECT_ID=...               # From https://cloud.walletconnect.com
 VITE_FEE_SPONSORSHIP_ID=pol_...                  # Fee sponsorship ID (optional, for gasless tx)
 VITE_CREATE_ENCRYPTED_SESSION_ENDPOINT=https://...  # Backend endpoint for automatic recovery (optional)
@@ -450,7 +450,7 @@ No wagmi or viem needed for Solana-only integrations.
 
 ```env
 VITE_OPENFORT_PUBLISHABLE_KEY=pk_test_...       # From https://dashboard.openfort.io
-VITE_SHIELD_PUBLISHABLE_KEY=shield_pk_...        # Shield public key from dashboard
+VITE_SHIELD_PUBLISHABLE_KEY=your-shield-publishable-key        # Shield public key from dashboard
 VITE_CREATE_ENCRYPTED_SESSION_ENDPOINT=https://...  # Backend endpoint for automatic recovery (optional)
 ```
 
