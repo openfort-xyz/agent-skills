@@ -49,7 +49,7 @@ private async UniTask InitializeOpenfort()
 {
     openfort = await OpenfortSDK.Init(
         publishableKey: "pk_test_...",
-        shieldPublishableKey: "shield_pk_...",  // Optional, for embedded wallets
+        shieldPublishableKey: "your-shield-publishable-key",  // Optional, for embedded wallets
         shieldDebug: false
     );
 }
@@ -76,7 +76,7 @@ public static UniTask<OpenfortSDK> Init(
 ```csharp
 openfort = await OpenfortSDK.Init(
     publishableKey: "pk_test_...",
-    shieldPublishableKey: "shield_pk_...",
+    shieldPublishableKey: "your-shield-publishable-key",
     thirdPartyProvider: "firebase",
     getThirdPartyToken: async (userId) =>
     {

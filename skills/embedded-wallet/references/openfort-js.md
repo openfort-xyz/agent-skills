@@ -25,7 +25,7 @@ const openfort = new Openfort({
     publishableKey: 'pk_test_...',
   },
   shieldConfiguration: {
-    shieldPublishableKey: 'shield_pk_...',
+    shieldPublishableKey: 'your-shield-publishable-key',
     // For passkey recovery:
     // passkeyRpId: 'yourdomain.com',
     // passkeyRpName: 'My App',
@@ -186,7 +186,7 @@ import { Openfort, ThirdPartyOAuthProvider } from '@openfort/openfort-js'
 
 const openfort = new Openfort({
   baseConfiguration: { publishableKey: 'pk_test_...' },
-  shieldConfiguration: { shieldPublishableKey: 'shield_pk_...' },
+  shieldConfiguration: { shieldPublishableKey: 'your-shield-publishable-key' },
   thirdPartyAuth: {
     provider: ThirdPartyOAuthProvider.FIREBASE,
     getAccessToken: async () => {
