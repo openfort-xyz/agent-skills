@@ -61,7 +61,7 @@ npm install @solana/kit @solana-program/system @solana-program/compute-budget @s
 
 ```env
 OPENFORT_API_KEY=sk_test_...            # Secret API key (required)
-OPENFORT_WALLET_SECRET=ws_...           # EC P-256 private key for signing ops (required for mutations)
+OPENFORT_WALLET_SECRET=...              # Base64-encoded EC P-256 private key (required for mutations)
 OPENFORT_PUBLISHABLE_KEY=pk_test_...    # Required for Solana operations (Kora gasless)
 OPENFORT_BASE_URL=https://api.openfort.io  # Optional, defaults to production
 ```
@@ -565,10 +565,10 @@ const decision = await openfort.policies.evaluate({ /* operation details */ })
 | `ethValue` | `<=`, `>=`, `<`, `>` | `ethValue: string` (wei) |
 | `evmAddress` | `in`, `not in` | `addresses: Address[]` |
 | `evmNetwork` | `in`, `not in` | `chainIds: number[]` |
-| `evmData` | `in`, `not in`, `<`, `<=`, `>`, `>=`, `==`, `match` | `data: string` (regex or hex) |
-| `evmMessage` | `match` | `message: string` (RE2 regex) |
-| `evmTypedDataVerifyingContract` | `in`, `not in` | `contracts: Address[]` |
-| `evmTypedDataField` | `in`, `<=`, `match` | `field: string`, `value: string` |
+| `evmData` | `in`, `not in`, `<`, `<=`, `>`, `>=`, `==`, `match` | `abi: string` (JSON ABI), `functionName: string`, `args?: Record<string, unknown>` |
+| `evmMessage` | `match` | `pattern: string` (RE2 regex) |
+| `evmTypedDataVerifyingContract` | `in`, `not in` | `addresses: Address[]` |
+| `evmTypedDataField` | `in`, `<=`, `match` | `fieldPath: string`, `values?: string[]` (for `in`), `value?: string` (for `<=`/`match`) |
 
 ### Solana Operations & Criteria
 
@@ -580,11 +580,11 @@ const decision = await openfort.policies.evaluate({ /* operation details */ })
 | `solValue` | `<=`, `>=` | `value: string` (lamports) |
 | `splAddress` | `in`, `not in` | `addresses: string[]` (base58) |
 | `splValue` | `<=`, `>=` | `value: string` (token units) |
-| `mintAddress` | `==`, `in` | `mint: string` or `mints: string[]` |
+| `mintAddress` | `==`, `in` | `addresses: string[]` (base58 mint addresses) |
 | `programId` | `in`, `not in` | `programIds: string[]` (base58) |
 | `solNetwork` | `in`, `not in` | `networks: ('mainnet-beta' \| 'devnet' \| 'testnet')[]` |
-| `solMessage` | `match` | `message: string` (RE2 regex) |
-| `solData` | `in`, `not in`, `<`, `<=`, `>`, `>=`, `==`, `match` | `data: string` |
+| `solMessage` | `match` | `pattern: string` (RE2 regex) |
+| `solData` | `in`, `not in`, `<=`, `>=`, `==`, `match` | `idl: string` (Anchor IDL JSON), `instructionName: string`, `args?: Record<string, unknown>` |
 
 ### Validation Schemas
 
