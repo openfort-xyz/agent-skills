@@ -137,6 +137,10 @@ import { OAuthProvider } from '@openfort/openfort-js'
 const url = await openfort.auth.initOAuth({
   provider: OAuthProvider.GOOGLE,
   redirectTo: 'https://your-app.com/callback',
+  options: {                              // Optional
+    scopes: 'email profile',              // Space-separated OAuth scopes
+    skipBrowserRedirect: false,           // If true, returns URL without redirecting
+  },
 })
 
 // 2. Redirect user to URL
@@ -214,7 +218,7 @@ const response = await openfort.auth.logInWithIdToken({
 await openfort.auth.addEmail({ email: 'user@example.com', callbackURL: 'https://your-app.com/verify' })
 
 // Link OAuth
-const url = await openfort.auth.initLinkOAuth({ provider: OAuthProvider.GOOGLE, redirectTo: '...' })
+const url = await openfort.auth.initLinkOAuth({ provider: OAuthProvider.GOOGLE, redirectTo: '...', options: { scopes: '...' } })
 
 // Unlink OAuth
 await openfort.auth.unlinkOAuth({ provider: OAuthProvider.GOOGLE })
@@ -341,11 +345,13 @@ const account = await openfort.embeddedWallet.get()
 
 // List wallets
 const wallets = await openfort.embeddedWallet.list({
-  chainType: ChainTypeEnum.EVM, // Optional
-  accountType: AccountTypeEnum.SMART_ACCOUNT, // Optional
-  chainId: 80002, // Optional
-  limit: 10,      // Optional
-  skip: 0,        // Optional
+  address: '0x...',                             // Optional — filter by address
+  chainType: ChainTypeEnum.EVM,                 // Optional
+  accountType: AccountTypeEnum.SMART_ACCOUNT,   // Optional
+  chainId: 80002,                               // Optional
+  order: SortOrdering.DESC,                     // Optional — 'asc' | 'desc'
+  limit: 10,                                    // Optional
+  skip: 0,                                      // Optional
 })
 
 // Change recovery method
@@ -515,10 +521,50 @@ openfortEvents.off(OpenfortEvents.ON_AUTH_SUCCESS, handler)
 openfortEvents.removeAllListeners(OpenfortEvents.ON_AUTH_SUCCESS)
 ```
 
+## EIP-7702 Authorization
+
+For delegated accounts using EIP-7702:
+
+```typescript
+import { prepareAndSignAuthorization, signAuthorization, serializeSignedAuthorization } from '@openfort/openfort-js'
+
+// Prepare and sign an authorization in one step
+const signedAuth = await prepareAndSignAuthorization({
+  account,       // EmbeddedAccount
+  chainId,       // number
+  nonce,         // bigint
+  address,       // contract address to delegate to
+})
+
+// Or sign a pre-prepared authorization
+const signed = await signAuthorization({ authorization, account })
+
+// Serialize for inclusion in transactions
+const serialized = serializeSignedAuthorization(signedAuth)
+```
+
+## Permissions (EIP-7715)
+
+```typescript
+import type { GrantPermissionsParameters, GrantPermissionsReturnType, RevokePermissionsRequestParams } from '@openfort/openfort-js'
+
+// Grant permissions via the provider
+const result = await provider.request({
+  method: 'wallet_grantPermissions',
+  params: [permissionsParams],
+})
+
+// Revoke permissions
+await provider.request({
+  method: 'wallet_revokePermissions',
+  params: [revokeParams],
+})
+```
+
 ## Error Handling
 
 ```typescript
-import { OpenfortError, AuthenticationError, RecoveryError } from '@openfort/openfort-js'
+import { OpenfortError, AuthenticationError, RecoveryError, OPENFORT_ERROR_CODES, OPENFORT_AUTH_ERROR_CODES } from '@openfort/openfort-js'
 
 try {
   await openfort.auth.logInWithEmailPassword({ email, password })
@@ -528,6 +574,10 @@ try {
   } else if (error instanceof RecoveryError) {
     console.error('Recovery failed:', error.recoveryMethod)
   } else if (error instanceof OpenfortError) {
+    // Use error codes for programmatic handling
+    if (error.error === OPENFORT_AUTH_ERROR_CODES.INVALID_CREDENTIALS) {
+      console.error('Invalid email or password')
+    }
     console.error('Openfort error:', error.error, error.error_description)
   }
 }
@@ -536,6 +586,50 @@ try {
 ### Error Classes
 
 `OpenfortError` (base), `AuthenticationError`, `AuthorizationError`, `ConfigurationError`, `OAuthError`, `OTPError`, `RecoveryError`, `RequestError`, `SessionError`, `SignerError`, `UserError`
+
+Passkey-specific errors: `PasskeyUserCancelledError`, `PasskeyCreationFailedError`, `PasskeyPRFNotSupportedError`, `PasskeyAssertionFailedError`, `PasskeySeedInvalidError`
+
+Recovery-specific errors: `MissingRecoveryPasswordError`, `WrongPasskeyError`, `WrongRecoveryPasswordError`, `MissingProjectEntropyError`
+
+Other: `OTPRequiredError`, `NotConfiguredError`
+
+### Error Code Constants
+
+```typescript
+import { OPENFORT_AUTH_ERROR_CODES, OPENFORT_ERROR_CODES, PASSKEY_ERROR_CODES } from '@openfort/openfort-js'
+
+// Auth error codes: INVALID_CREDENTIALS, USER_NOT_FOUND, USER_ALREADY_EXISTS, SESSION_EXPIRED, etc.
+// Passkey error codes: USER_CANCELLED, CREATION_FAILED, ASSERTION_FAILED, PRF_NOT_SUPPORTED, INVALID_SEED
+```
+
+## Passkey Handler
+
+For custom passkey handling (e.g., React Native):
+
+```typescript
+import { PasskeyHandler, type IPasskeyHandler, type PasskeyCreateConfig, type PasskeyDeriveConfig, type PasskeyDetails } from '@openfort/openfort-js'
+
+// Use the built-in browser handler
+const handler = new PasskeyHandler({
+  rpId: 'yourdomain.com',
+  rpName: 'My App',
+  displayName: 'My Wallet',
+  timeoutMs: 60000,
+  derivedKeyLengthBytes: 32,
+})
+
+// Or implement IPasskeyHandler for custom platforms
+const customHandler: IPasskeyHandler = {
+  createPasskey: async (config: PasskeyCreateConfig) => { /* ... */ return passkeyDetails },
+  deriveAndExportKey: async (config: PasskeyDeriveConfig) => { /* ... */ return base64urlKey },
+}
+
+// Pass custom handler via overrides
+const openfort = new Openfort({
+  baseConfiguration: { publishableKey: 'pk_test_...' },
+  overrides: { passkeyHandler: customHandler },
+})
+```
 
 ## Key Types & Enums
 
@@ -552,9 +646,10 @@ import {
   EmbeddedState,           // NONE, UNAUTHENTICATED, EMBEDDED_SIGNER_NOT_CONFIGURED, CREATING_ACCOUNT, READY
   RecoveryMethod,          // AUTOMATIC, PASSWORD, PASSKEY
   OpenfortEvents,          // ON_AUTH_INIT, ON_AUTH_SUCCESS, ON_AUTH_FAILURE, ON_LOGOUT, ON_OTP_REQUEST, ON_OTP_FAILURE, ON_SWITCH_ACCOUNT, ON_SIGNED_MESSAGE, ON_EMBEDDED_WALLET_CREATED, ON_EMBEDDED_WALLET_RECOVERED
+  TokenType,               // ID_TOKEN, CUSTOM_TOKEN
 
   // Events
-  openfortEvents,          // Global event emitter
+  openfortEvents,          // Global event emitter (also available via Openfort.getEventEmitter())
 
   // Types
   type AuthResponse,
@@ -567,10 +662,46 @@ import {
   type OpenfortEventMap,
   type AuthInitPayload,
   type SignedMessagePayload,
+  type InitializeOAuthOptions,
+
+  // EIP-7702 Authorization
+  type Authorization,
+  type SignedAuthorization,
+  type PrepareAuthorizationParams,
+  type SignAuthorizationParams,
+  prepareAndSignAuthorization,
+  signAuthorization,
+  serializeSignedAuthorization,
+
+  // Permissions (EIP-7715)
+  type GrantPermissionsParameters,
+  type GrantPermissionsReturnType,
+  type Permission,
+  type Policy,
+  type RevokePermissionsRequestParams,
+
+  // Passkey
+  PasskeyHandler,
+  type IPasskeyHandler,
+  type PasskeyCreateConfig,
+  type PasskeyDeriveConfig,
+  type PasskeyDetails,
+
+  // Error constants
+  OPENFORT_AUTH_ERROR_CODES,
+  OPENFORT_ERROR_CODES,
+  PASSKEY_ERROR_CODES,
 
   // Errors
   OpenfortError,
   AuthenticationError,
   RecoveryError,
+  PasskeyUserCancelledError,
+  PasskeyCreationFailedError,
+  PasskeyPRFNotSupportedError,
+
+  // Utilities
+  arrayBufferToBase64URL,
+  base64ToArrayBuffer,
 } from '@openfort/openfort-js'
 ```
