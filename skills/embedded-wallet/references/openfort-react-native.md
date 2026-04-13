@@ -319,11 +319,13 @@ type OpenfortHookOptions<T> = {
 import { useEmailAuth } from '@openfort/react-native'
 
 const {
-  signInEmail,                // ({ email, password }) => Promise
-  signUpEmail,                // ({ email, password, name? }) => Promise
-  verifyEmail,                // ({ token }) => Promise
-  requestResetPassword,       // ({ email, emailVerificationRedirectTo? }) => Promise
-  resetPassword,              // ({ password, token }) => Promise
+  signInEmail,                // ({ email, password, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
+  signUpEmail,                // ({ email, password, name?, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
+  verifyEmail,                // ({ token }) => Promise<EmailVerificationResult>
+  linkEmail,                  // () => void — link email/password to existing account
+  requestResetPassword,       // ({ email, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
+  resetPassword,              // ({ password, token }) => Promise<EmailAuthResult>
+  reset,                      // () => void — reset flow state to initial
   isLoading, isError, isSuccess, error,
   requiresEmailVerification,  // boolean
 } = useEmailAuth()
@@ -335,8 +337,9 @@ const {
 import { useEmailAuthOtp } from '@openfort/react-native'
 
 const {
-  signInEmailOtp,   // ({ email, otp }) => Promise
-  requestEmailOtp,  // ({ email }) => Promise
+  signInEmailOtp,   // ({ email, otp }) => Promise<EmailOtpAuthResult>
+  requestEmailOtp,  // ({ email }) => Promise<EmailOtpAuthResult>
+  reset,            // () => void — reset flow state
   isLoading, isError, isSuccess, error,
 } = useEmailAuthOtp()
 ```
@@ -347,8 +350,9 @@ const {
 import { usePhoneAuthOtp } from '@openfort/react-native'
 
 const {
-  signInPhoneOtp,   // ({ phone, otp }) => Promise
-  requestPhoneOtp,  // ({ phone }) => Promise
+  signInPhoneOtp,   // ({ phone, otp }) => Promise<PhoneOtpAuthResult>
+  requestPhoneOtp,  // ({ phone }) => Promise<PhoneOtpAuthResult>
+  reset,            // () => void — reset flow state
   isLoading, isError, isSuccess, error,
 } = usePhoneAuthOtp()
 ```
@@ -378,7 +382,7 @@ import { useWalletAuth } from '@openfort/react-native'
 const {
   generateSiweMessage,  // ({ wallet, from: { domain, uri } }) => Promise
   signInWithSiwe,        // ({ walletAddress, signature, messageOverride?, disableSignup? }) => Promise
-  linkSiwe,              // () => link wallet to existing account
+  linkSiwe,              // ({ signature, walletAddress, messageOverride? }) => Promise<WalletHookResult>
   isLoading, isError, isSuccess, error,
   isAwaitingSignature, isGeneratingMessage, isSubmittingSignature,
 } = useWalletAuth()
@@ -410,6 +414,7 @@ const {
 
 ```ts
 import {
+  // Core types
   AccountTypeEnum,
   ChainTypeEnum,
   EmbeddedAccount,
@@ -430,6 +435,23 @@ import {
   OpenfortEventMap,
   AuthInitPayload,
   SignedMessagePayload,
+
+  // Error classes
+  AuthenticationError,
+  RecoveryError,
+  SessionError,
+  SignerError,
+
+  // Passkey error classes
+  PASSKEY_ERROR_CODES,
+  PasskeyAssertionFailedError,
+  PasskeyCreationFailedError,
+  PasskeyPRFNotSupportedError,
+  PasskeySeedInvalidError,
+  PasskeyUserCancelledError,
+
+  // Wallet types
+  RecoveryMethodDetails,
 } from '@openfort/react-native'
 
 // Standalone utility function
@@ -644,12 +666,12 @@ import { useEmbeddedEthereumWallet } from '@openfort/react-native'
 
 const wallet = useEmbeddedEthereumWallet({
   chainId: 84532,  // Optional — target chain ID
-  onCreateSuccess: (wallet) => {},
-  onCreateError: (error) => {},
-  onSetActiveSuccess: (wallet) => {},
-  onSetActiveError: (error) => {},
+  onCreateSuccess: (account, provider) => {},   // (EmbeddedAccount, EthereumProvider)
+  onCreateError: (error) => {},                 // (OpenfortError)
+  onSetActiveSuccess: (wallet, provider) => {}, // (ConnectedEthWallet, EthereumProvider)
+  onSetActiveError: (error) => {},              // (OpenfortError)
   onSetRecoverySuccess: () => {},
-  onSetRecoveryError: (error) => {},
+  onSetRecoveryError: (error) => {},            // (OpenfortError)
 })
 ```
 
@@ -795,10 +817,10 @@ import { AccountTypeEnum, ChainTypeEnum, EmbeddedState, RecoveryMethod, OAuthPro
 import { useEmbeddedSolanaWallet } from '@openfort/react-native'
 
 const wallet = useEmbeddedSolanaWallet({
-  onCreateSuccess: (wallet) => {},
-  onCreateError: (error) => {},
-  onSetActiveSuccess: (wallet) => {},
-  onSetActiveError: (error) => {},
+  onCreateSuccess: (account, provider) => {},   // (EmbeddedAccount, SolanaProvider)
+  onCreateError: (error) => {},                 // (OpenfortError)
+  onSetActiveSuccess: (wallet, provider) => {}, // (ConnectedSolWallet, SolanaProvider)
+  onSetActiveError: (error) => {},              // (OpenfortError)
 })
 ```
 
