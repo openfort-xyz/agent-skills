@@ -127,8 +127,11 @@ import { AuthProvider, RecoveryMethod } from '@openfort/react'
     // truncateLongENSAddress: true, // Shorten long ENS names (ETHEREUM ONLY)
     // enforceSupportedChains: true, // Force chain switch if on unsupported chain (ETHEREUM ONLY)
     // walletConnectCTA: 'both',    // 'link' | 'modal' | 'both' — WalletConnect button style (ETHEREUM ONLY)
+    // walletConnectName: 'My App',    // Rarely needed — custom WalletConnect display name
+    // bufferPolyfill: false,           // Rarely needed — Buffer polyfill for bundlers without Node polyfills (CRA, Vite)
     // buyWithCardUrl: 'https://...', // Custom onramp URL
     // buyFromExchangeUrl: 'https://...', // Custom exchange URL
+    // buyTroubleshootingUrl: 'https://...', // Custom troubleshooting URL for buy flow
     // phoneConfig: { defaultCountry: 'us', preferredCountries: ['us', 'gb'], forceDialCode: true },
     // customPageComponents: { connected: <MyCustomPage /> }, // Replace built-in pages
   }}
@@ -175,12 +178,15 @@ function MyComponent() {
 ```tsx
 phoneConfig: {
   defaultCountry: 'es',                    // ISO2 country code
+  countries: [...],                        // Custom country list (default: all countries)
   preferredCountries: ['es', 'us', 'gb'],  // Shown at top of dropdown
   forceDialCode: true,                     // Can't remove dial code
   hideDropdown: false,                     // Show/hide country selector
   disableFormatting: false,                // Raw numbers without mask
   disableCountryGuess: false,              // Auto-detect country
   disableDialCodePrefill: false,           // Pre-fill dial code on init
+  disableDialCodeAndPrefix: false,         // Hide dial code and prefix from display
+  showDisabledDialCodeAndPrefix: false,    // Show prefix between selector and input (when disableDialCodeAndPrefix is true)
   disableFocusAfterCountrySelect: false,   // Keep focus after selecting country
 }
 ```
@@ -215,18 +221,65 @@ Currently customizable routes: `'connected'`.
 ## COMMON: Auth Hooks
 
 ```ts
-import { useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut, useUser } from '@openfort/react'
+import { useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut, useUser, useAuthCallback, useGrantPermissions, useRevokePermissions, use7702Authorization } from '@openfort/react'
+```
+
+### useAuthCallback
+
+Handles authentication callbacks from OAuth providers and email verification. Automatically processes URL parameters on page load.
+
+```tsx
+import { useAuthCallback } from '@openfort/react'
+
+function AuthCallbackPage() {
+  const { isLoading, isSuccess, isError, error, provider, email, storeCredentials, verifyEmail } = useAuthCallback({
+    enabled: true,
+    onSuccess: (result) => {
+      if (result.type === 'storeCredentials') console.log('OAuth done:', result.user)
+      if (result.type === 'verifyEmail') console.log('Email verified:', result.email)
+    },
+  })
+}
+```
+
+### useGrantPermissions (EIP-7715 Session Keys)
+
+```tsx
+import { useGrantPermissions } from '@openfort/react'
+
+const { grantPermissions, isLoading, data, error, reset } = useGrantPermissions({
+  onSuccess: (result) => console.log('Permissions granted:', result),
+})
+await grantPermissions({ request: { /* GrantPermissionsParameters */ }, sessionKey: '0x...' })
+```
+
+### useRevokePermissions (EIP-7715 Session Keys)
+
+```tsx
+import { useRevokePermissions } from '@openfort/react'
+
+const { revokePermissions, isLoading, data, error, reset } = useRevokePermissions()
+await revokePermissions({ sessionKey: '0x...' })
+```
+
+### use7702Authorization (EIP-7702)
+
+```tsx
+import { use7702Authorization } from '@openfort/react'
+
+const { signAuthorization } = use7702Authorization()
+const signedAuth = await signAuthorization({ /* SignAuthorizationParameters (viem AuthorizationRequest) */ })
 ```
 
 ## COMMON: Modal Routes
 
 **Auth**: `'providers'` `'socialProviders'` `'emailLogin'` `'emailOtp'` `'phoneOtp'` `'forgotPassword'` `'emailVerification'` `'linkEmail'` `'createGuestUser'`
 
-**Wallet lifecycle**: `'loadWallets'` `'createWallet'` `'recoverWallets'` `'selectWalletToRecover'` `'connectedSuccess'`
+**Wallet lifecycle**: `'loading'` `'loadWallets'` `'createWallet'` `'recoverWallets'` `'selectWalletToRecover'` `'connectedSuccess'`
 
 **Profile**: `'profile'` `'exportKey'` `'linkedProviders'` `'linkedProvider'` `'removeLinkedProvider'`
 
-**Shared**: `'walletOverview'` `'assetInventory'` `'noAssetsAvailable'` `'send'` `'sendTokenSelect'` `'sendConfirmation'` `'receive'` `'buy'` `'buyTokenSelect'` `'buySelectProvider'` `'buyProcessing'` `'buyComplete'` `'about'` `'onboarding'`
+**Shared**: `'walletOverview'` `'assetInventory'` `'noAssetsAvailable'` `'send'` `'sendTokenSelect'` `'sendConfirmation'` `'receive'` `'buy'` `'buyTokenSelect'` `'buySelectProvider'` `'buyProviderSelect'` `'buyProcessing'` `'buyComplete'` `'about'` `'onboarding'` `'download'` `'connectWithMobile'`
 
 ## COMMON: SSR Compatibility Rules
 
@@ -404,27 +457,31 @@ ethereum: {
 
 ```ts
 import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum'
-import { useWalletAuth } from '@openfort/react/wagmi'
+import { useEthereumWalletAssets } from '@openfort/react/ethereum'
+import { useWalletAuth, useChains, useConnectWithSiwe } from '@openfort/react/wagmi'
 ```
 
 ## ETHEREUM: Modal Routes
 
 **EVM-specific**: `'eth:connected'` `'eth:createWallet'` `'eth:recoverWallet'` `'eth:switchNetworks'` `'eth:send'` `'eth:receive'` `'eth:buy'` `'eth:connectors'`
 
-**External wallets**: `'connectors'` `'mobileConnectors'` `'connect'` `'connected'` (customizable) `'switchNetworks'`
+**External wallets**: `'connectors'` `'mobileConnectors'` `'connectWithMobile'` `'connect'` `'download'` `'connected'` (customizable) `'switchNetworks'`
 
 ## ETHEREUM: Key Exports
 
 ```ts
 // Provider + wagmi
 import { OpenfortProvider, OpenfortButton } from '@openfort/react'
-import { OpenfortWagmiBridge, getDefaultConfig, embeddedWalletConnector, useWalletAuth, useChainIsSupported } from '@openfort/react/wagmi'
+import { OpenfortWagmiBridge, getDefaultConfig, embeddedWalletConnector, useWalletAuth, useChainIsSupported, useChains, useConnectWithSiwe } from '@openfort/react/wagmi'
 
 // Ethereum wallet
-import { useEthereumEmbeddedWallet } from '@openfort/react/ethereum'
+import { useEthereumEmbeddedWallet, useEthereumWalletAssets } from '@openfort/react/ethereum'
 
 // Auth + user
-import { useUser, useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut } from '@openfort/react'
+import { useUser, useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut, useAuthCallback } from '@openfort/react'
+
+// Session keys & EIP-7702
+import { useGrantPermissions, useRevokePermissions, use7702Authorization } from '@openfort/react'
 
 // Types
 import { AccountTypeEnum, ChainTypeEnum, RecoveryMethod, OAuthProvider, AuthProvider } from '@openfort/react'
@@ -533,7 +590,10 @@ import { OpenfortProvider, OpenfortButton } from '@openfort/react'
 import { useSolanaEmbeddedWallet } from '@openfort/react/solana'
 
 // Auth + user
-import { useUser, useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut } from '@openfort/react'
+import { useUser, useEmailAuth, useEmailOtpAuth, usePhoneOtpAuth, useOAuth, useGuestAuth, useSignOut, useAuthCallback } from '@openfort/react'
+
+// Session keys & EIP-7702
+import { useGrantPermissions, useRevokePermissions, use7702Authorization } from '@openfort/react'
 
 // Types
 import { ChainTypeEnum, RecoveryMethod, OAuthProvider, AuthProvider } from '@openfort/react'
