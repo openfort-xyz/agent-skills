@@ -110,15 +110,10 @@ After authentication, configure the embedded wallet with a recovery method:
 ### Password Recovery
 
 ```csharp
-var shield = new ShieldAuthentication(
-    ShieldAuthType.Openfort,
-    openfortEncryptionKey: "YOUR_SHIELD_ENCRYPTION_SHARE"
-);
-var account = await openfort.ConfigureEmbeddedWallet(
-    chainId: 80002,
-    shieldAuthentication: shield,
-    recoveryPassword: "user-password"
-);
+await openfort.ConfigureEmbeddedWallet(new ConfigureEmbeddedWalletRequest(
+    recoveryParams: new PasswordRecoveryParams("user-password"),
+    chainId: 80002
+));
 ```
 
 ### Automatic Recovery
@@ -130,30 +125,45 @@ Requires an encryption session from your backend:
 var session = await FetchEncryptionSession();
 
 // 2. Configure with automatic recovery
-var shield = new ShieldAuthentication(
-    ShieldAuthType.Openfort,
-    openfortEncryptionSession: session
-);
-var account = await openfort.ConfigureEmbeddedWallet(
-    chainId: 80002,
-    shieldAuthentication: shield
-);
+await openfort.ConfigureEmbeddedWallet(new ConfigureEmbeddedWalletRequest(
+    recoveryParams: new AutomaticRecoveryParams(encryptionSession: session),
+    chainId: 80002
+));
+```
+
+### ConfigureEmbeddedWalletRequest
+
+```csharp
+new ConfigureEmbeddedWalletRequest(
+    RecoveryParams recoveryParams = null,  // PasswordRecoveryParams or AutomaticRecoveryParams
+    int? chainId = null,
+    ChainType? chainType = null,           // EVM or SVM
+    AccountType? accountType = null        // EOA, SMART_ACCOUNT, or DELEGATED_ACCOUNT
+)
 ```
 
 ### Additional Wallet Operations
 
 ```csharp
 // Create a new embedded wallet
-var wallet = await openfort.CreateEmbeddedWallet(chainId: 80002, shieldAuthentication: shield);
+var wallet = await openfort.CreateEmbeddedWallet(new CreateEmbeddedWalletRequest(
+    accountType: AccountType.SMART_ACCOUNT,
+    chainType: ChainType.EVM,
+    recoveryParams: new AutomaticRecoveryParams(),
+    chainId: 80002
+));
 
 // Recover embedded wallet
-var wallet = await openfort.RecoverEmbeddedWallet(chainId: 80002, shieldAuthentication: shield, recoveryPassword: "password");
+var wallet = await openfort.RecoverEmbeddedWallet(new RecoverEmbeddedWalletRequest(
+    account: "account-id",
+    recoveryParams: new PasswordRecoveryParams("password")
+));
 
 // Get current wallet
 var wallet = await openfort.GetEmbeddedWallet();
 
-// List all wallets
-var wallets = await openfort.ListWallets();
+// List all wallets (with optional filters)
+var wallets = await openfort.ListWallets(new ListWalletsRequest());
 ```
 
 ## Authentication
@@ -163,17 +173,19 @@ var wallets = await openfort.ListWallets();
 ```csharp
 // Sign up
 var authResponse = await openfort.SignUpWithEmailPassword(
-    new SignUpEmailPasswordRequest(email: "user@example.com", password: "password123")
+    email: "user@example.com",
+    password: "password123"
 );
 
 // Log in
 var authResponse = await openfort.LogInWithEmailPassword(
-    new LoginEmailPasswordRequest(email: "user@example.com", password: "password123")
+    email: "user@example.com",
+    password: "password123"
 );
 
 // Request email verification
 await openfort.RequestEmailVerification(
-    new RequestEmailVerificationRequest(email: "user@example.com", redirectUrl: "https://your-redirect-url")
+    new RequestEmailVerificationRequest("user@example.com", "https://your-redirect-url")
 );
 
 // Verify email
@@ -184,30 +196,26 @@ await openfort.VerifyEmail(new VerifyEmailRequest(token: "verification-token"));
 
 ```csharp
 // Request OTP
-await openfort.RequestEmailOtp(new RequestEmailOtpRequest(email: "user@example.com"));
+await openfort.RequestEmailOtp("user@example.com");
 
 // Log in with OTP
-var authResponse = await openfort.LogInWithEmailOtp(
-    new LoginEmailOtpRequest(email: "user@example.com", otp: "123456")
-);
+var authResponse = await openfort.LogInWithEmailOtp("user@example.com", "123456");
 
 // Verify email via OTP
-await openfort.VerifyEmailOtp(new VerifyEmailOtpRequest(email: "user@example.com", otp: "123456"));
+await openfort.VerifyEmailOtp("user@example.com", "123456");
 ```
 
 ### Phone OTP
 
 ```csharp
 // Request phone OTP
-await openfort.RequestPhoneOtp(new RequestPhoneOtpRequest(phoneNumber: "+1234567890"));
+await openfort.RequestPhoneOtp("+1234567890");
 
 // Log in with phone OTP
-var authResponse = await openfort.LogInWithPhoneOtp(
-    new LoginPhoneOtpRequest(phoneNumber: "+1234567890", otp: "123456")
-);
+var authResponse = await openfort.LogInWithPhoneOtp("+1234567890", "123456");
 
 // Link phone number
-await openfort.LinkPhoneOtp(new LinkPhoneOtpRequest(phoneNumber: "+1234567890", otp: "123456"));
+await openfort.LinkPhoneOtp(new LinkPhoneOtpRequest("+1234567890", "123456"));
 ```
 
 ### Guest
@@ -219,7 +227,7 @@ var authResponse = await openfort.SignUpGuest();
 Guest accounts cannot merge into existing accounts — they can only be upgraded. Use `AddEmail()` to upgrade:
 
 ```csharp
-await openfort.AddEmail(new AddEmailRequest(email: "user@example.com", password: "password123"));
+await openfort.AddEmail(new AddEmailRequest("user@example.com"));
 ```
 
 ### Third-Party Auth (Firebase, Supabase, etc.)
@@ -228,9 +236,7 @@ Initialize SDK with third-party provider (see Init section above), then use your
 
 ```csharp
 // After authenticating with your provider:
-var authResponse = await openfort.LogInWithIdToken(
-    new LogInWithIdTokenRequest(provider: "firebase", token: idToken)
-);
+var authResponse = await openfort.LogInWithIdToken("firebase", idToken);
 ```
 
 ### External Wallet (SIWE)
@@ -241,35 +247,50 @@ var initResponse = await openfort.InitSiwe(
     new InitSiweRequest(address: walletAddress)
 );
 
-// 2. Sign the message with external wallet
-var signature = SignWithExternalWallet(initResponse.Message);
+// 2. Build the SIWE message using the nonce and sign it with external wallet
+var siweMessage = BuildSiweMessage(initResponse.address, initResponse.nonce);
+var signature = SignWithExternalWallet(siweMessage);
 
-// 3. Complete authentication
+// 3. Complete authentication (address is required)
 var authResponse = await openfort.LoginWithSiwe(
     new LoginWithSiweRequest(
         signature: signature,
-        message: initResponse.Message,
+        message: siweMessage,
         walletClientType: "MetaMask",
-        connectorType: "metaMask"
+        connectorType: "metaMask",
+        address: walletAddress
     )
 );
 
 // Link additional wallet
-var linkInit = await openfort.InitLinkSiwe(new InitSiweRequest(address: anotherAddress));
+var linkInit = await openfort.InitLinkSiwe(new InitLinkSiweRequest(anotherAddress));
+var linkMsg = BuildSiweMessage(linkInit.address, linkInit.nonce);
 await openfort.LinkWithSiwe(new LinkWithSiweRequest(
-    signature: sig, message: linkInit.Message,
-    walletClientType: "MetaMask", connectorType: "metaMask"
+    signature: sig, message: linkMsg,
+    walletClientType: "MetaMask", connectorType: "metaMask",
+    address: anotherAddress, chainId: 1
 ));
 
 // Unlink wallet
-await openfort.UnlinkWallet(new UnlinkWalletRequest(address: walletAddress));
+await openfort.UnlinkWallet(new UnlinkWalletRequest(walletAddress, chainId: 1));
 ```
 
 ### OAuth
 
-:::warning
-OAuth flows (Google, Twitter, Facebook, Discord, etc.) are **not available** when using Openfort's built-in authentication in Unity. Use a third-party auth provider (Firebase, Supabase, etc.) and pass the JWT to Openfort via `LogInWithIdToken`.
-:::
+The SDK supports OAuth via `InitOAuth` which returns a URL to redirect the user to:
+
+```csharp
+// Initialize OAuth flow — returns URL string for browser redirect
+var url = await openfort.InitOAuth(OAuthProvider.GOOGLE, "https://your-redirect-url");
+
+// Link OAuth provider to existing account
+var url = await openfort.InitLinkOAuth(OAuthProvider.DISCORD, "https://your-redirect-url");
+
+// Unlink OAuth provider
+var user = await openfort.UnlinkOAuth(OAuthProvider.GOOGLE);
+```
+
+Note: OAuth requires browser redirects, which may need platform-specific handling in Unity.
 
 ## User Session
 
@@ -282,13 +303,11 @@ var user = await openfort.GetUser();
 var token = await openfort.GetAccessToken();
 
 // Validate and refresh token
-var tokenResponse = await openfort.ValidateAndRefreshToken(
-    new ValidateAndRefreshTokenRequest(token: token)
-);
+await openfort.ValidateAndRefreshToken(forceRefresh: false);
 
 // Store credentials (for OAuth callback flows)
 await openfort.StoreCredentials(
-    new StoreCredentialsRequest(token: accessToken, userId: userId)
+    new AuthCredentialsRequest(player: playerId, accessToken: accessToken, refreshToken: refreshToken)
 );
 
 // Log out
@@ -298,9 +317,9 @@ await openfort.Logout();
 ### Password Reset
 
 ```csharp
-// Request reset
+// Request reset (uses ResetPasswordRequest with password and token fields)
 await openfort.RequestResetPassword(
-    new RequestResetPasswordRequest(email: email, redirectUrl: "https://your-redirect")
+    new ResetPasswordRequest(password: "", token: resetToken)
 );
 
 // Complete reset
@@ -317,7 +336,7 @@ var provider = await openfort.GetEthereumProvider(new EthereumProviderRequest())
 
 // With gas sponsorship
 var provider = await openfort.GetEthereumProvider(
-    new EthereumProviderRequest(policy: "YOUR_POLICY_ID")
+    new EthereumProviderRequest(new EthereumProviderOptions(policy: "YOUR_POLICY_ID"))
 );
 ```
 
@@ -328,7 +347,7 @@ Use the provider for standard JSON-RPC requests:
 ```csharp
 var provider = await openfort.GetEthereumProvider(new EthereumProviderRequest());
 
-// Send transaction
+// Send transaction via IRequestArguments
 var txParams = new Dictionary<string, object>
 {
     { "to", "0x..." },
@@ -336,16 +355,21 @@ var txParams = new Dictionary<string, object>
     { "value", "0x8ac7230489e80000" },
     { "data", "0x" }
 };
-var txHash = await provider.Request("eth_sendTransaction", new object[] { txParams });
+var request = new JsonRpcRequestPayload
+{
+    method = "eth_sendTransaction",
+    @params = new List<object> { txParams }
+};
+var txHash = await provider.Request(request);
 ```
 
 ### Sponsored Transaction
 
-Pass `policy` to the provider and omit gas params:
+Pass `policy` via `EthereumProviderOptions` and omit gas params:
 
 ```csharp
 var provider = await openfort.GetEthereumProvider(
-    new EthereumProviderRequest(policy: "YOUR_POLICY_ID")
+    new EthereumProviderRequest(new EthereumProviderOptions(policy: "YOUR_POLICY_ID"))
 );
 ```
 
@@ -400,7 +424,7 @@ var message = new Dictionary<string, object>
     { "content", "Hello!" }
 };
 var signature = await openfort.SignTypedData(
-    new SignTypedDataRequest(domain: domain, types: types, message: message)
+    new SignTypedDataRequest(domain: domain, types: types, value: message)
 );
 ```
 
@@ -410,9 +434,9 @@ For server-originated transactions:
 
 ```csharp
 var response = await openfort.SendSignatureTransactionIntentRequest(
-    new SendSignatureTransactionIntentRequest(
+    new SignatureTransactionIntentRequest(
         transactionIntentId: "ti_...",
-        signableHash: userOperationHash,
+        userOperationHash: userOpHash,
         signature: signature,
         optimistic: false
     )
@@ -450,7 +474,7 @@ openfort.OnAuthEvent += (eventType) =>
 ```csharp
 try
 {
-    await openfort.LogInWithEmailPassword(request);
+    await openfort.LogInWithEmailPassword("user@example.com", "password");
 }
 catch (OpenfortException e)
 {
@@ -469,14 +493,14 @@ catch (OpenfortException e)
 ## Utility Methods
 
 ```csharp
-// Set browser communication timeout (milliseconds)
-await openfort.SetCallTimeout(30000);  // Default: 60000 (1 minute)
+// Set browser communication timeout (milliseconds) — synchronous, not async
+openfort.SetCallTimeout(30000);
 
-// Clear WebView cache
-await openfort.ClearCache();
+// Clear WebView cache — synchronous, requires bool param
+openfort.ClearCache(includeDiskFiles: true);
 
-// Clear WebView storage
-await openfort.ClearStorage();
+// Clear WebView storage — synchronous
+openfort.ClearStorage();
 ```
 
 ## WebGL Deployment
@@ -502,13 +526,14 @@ enum ChainType { EVM, SVM }
 // Account
 enum AccountType { EOA, SMART_ACCOUNT, DELEGATED_ACCOUNT }
 
-// OAuth (not available with built-in auth in Unity — use third-party instead)
+// OAuth providers
 enum OAuthProvider { GOOGLE, TWITTER, APPLE, FACEBOOK, DISCORD, EPIC_GAMES, LINE }
 ```
 
 ## Namespaces
 
 ```csharp
-using Openfort.OpenfortSDK;        // OpenfortSDK class
+using Openfort.OpenfortSDK;         // OpenfortSDK class
 using Openfort.OpenfortSDK.Model;   // Request/Response models, enums
+using Openfort.OpenfortSDK.Event;   // OnAuthEventDelegate, OpenfortAuthEvent
 ```
