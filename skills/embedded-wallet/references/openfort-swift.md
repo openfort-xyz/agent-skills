@@ -374,7 +374,7 @@ let token = try await OFSDK.shared.getAccessToken()  // String?
 
 // Get current user
 let user = try await OFSDK.shared.getUser()
-// user.id, user.object, user.createdAt, user.linkedAccounts
+// user.id, user.email, user.createdAt, user.linkedAccounts
 
 // Log out
 try await OFSDK.shared.logOut()
