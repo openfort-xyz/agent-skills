@@ -530,14 +530,16 @@ import { prepareAndSignAuthorization, signAuthorization, serializeSignedAuthoriz
 
 // Prepare and sign an authorization in one step
 const signedAuth = await prepareAndSignAuthorization({
-  account,       // EmbeddedAccount
-  chainId,       // number
-  nonce,         // bigint
-  address,       // contract address to delegate to
+  contractAddress, // contract address to delegate to
+  chainId,         // number (optional, auto-filled if rpcUrl provided)
+  nonce,           // number (optional, auto-filled if rpcUrl provided)
+  rpcUrl,          // optional — RPC URL for fetching chain data
+  accountAddress,  // optional — account address for fetching nonce
+  signer,          // internal Signer instance
 })
 
 // Or sign a pre-prepared authorization
-const signed = await signAuthorization({ authorization, account })
+const signed = await signAuthorization({ authorization, signer })
 
 // Serialize for inclusion in transactions
 const serialized = serializeSignedAuthorization(signedAuth)
