@@ -55,6 +55,7 @@ const walletConfig = {
   // chainType: ChainTypeEnum.EVM,           // default EVM — initial chain type on mount
   // passkeyDisplayName: 'My Wallet',        // name in browser passkey dialog
   // requestWalletRecoverOTPEndpoint: '...',  // backend URL for OTP-based wallet recovery
+  //   // Alternative: requestWalletRecoverOTP: async ({ accessToken, userId, email, phone }) => { ... }
   // getEncryptionSession: async (params) => { // alternative to createEncryptedSessionEndpoint
   //   // params: { accessToken: string, userId: string, otpCode?: string }
   //   return sessionId
@@ -565,6 +566,7 @@ solana: {
   // ── Rarely needed ──
   // rpcUrls: { 'mainnet-beta': 'https://...' },  // custom RPCs
   // commitment: 'confirmed',                       // 'processed' | 'confirmed' | 'finalized' (default: 'confirmed')
+  // ui: { customAvatar: MyAvatarComponent },       // custom avatar component for Solana wallets
 }
 ```
 
