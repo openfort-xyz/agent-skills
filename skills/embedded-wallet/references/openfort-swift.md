@@ -32,7 +32,7 @@ Add `OFConfig.plist` to your Xcode project (select "Copy items if needed"):
 | `backendUrl` | No | Override backend API URL |
 | `iframeUrl` | No | Override iframe environment URL |
 | `shieldUrl` | No | Override Shield service URL |
-| `debug` | No | Enable debug logging (boolean) |
+| `debug` | **Yes** | Enable debug logging (boolean) |
 
 ## SDK Initialization
 
@@ -200,10 +200,9 @@ struct OFEmbeddedAccountConfigureParams {
 }
 
 struct OFRecoveryParamsDTO {
-    public let recoveryMethod: OFRecoveryMethod  // .automatic | .password | .passkey
+    public let recoveryMethod: OFRecoveryMethod  // .automatic | .password
     public let encryptionSession: String?
     public let password: String?
-    public let passkeyInfo: OFPasskeyInfoDTO?
 }
 ```
 
@@ -267,6 +266,7 @@ let result = try await OFSDK.shared.logInWithEmailPassword(
 ### Verify Email
 
 ```swift
+// OFVerifyEmailParams(token: String, callbackURL: String? = nil)
 try await OFSDK.shared.verifyEmail(
     params: OFVerifyEmailParams(token: verificationToken)
 )
@@ -281,6 +281,23 @@ try await OFSDK.shared.requestEmailOtp(params: OFRequestEmailOtpParams(email: em
 // Verify OTP
 let result = try await OFSDK.shared.logInWithEmailOtp(
     params: OFLogInWithEmailOtpParams(email: email, otp: otpCode)
+)
+```
+
+### Phone OTP
+
+```swift
+// Request OTP
+try await OFSDK.shared.requestPhoneOtp(params: OFRequestPhoneOtpParams(phoneNumber: "+1234567890"))
+
+// Log in with OTP
+let result = try await OFSDK.shared.logInWithPhoneOtp(
+    params: OFLogInWithPhoneOtpParams(phoneNumber: "+1234567890", otp: otpCode)
+)
+
+// Link phone to existing account
+let result = try await OFSDK.shared.linkPhoneOtp(
+    params: OFLinkPhoneOtpParams(phoneNumber: "+1234567890", otp: otpCode)
 )
 ```
 
@@ -353,6 +370,99 @@ let result = try await OFSDK.shared.authenticateWithSIWE(
         walletClientType: "MetaMask",
         connectorType: "metaMask"
     )
+)
+```
+
+### SIWE Login (Direct)
+
+Alternative to `initSIWE` + `authenticateWithSIWE` — single-step SIWE login:
+
+```swift
+let result = try await OFSDK.shared.loginWithSiwe(
+    params: OFLoginWithSiweParams(
+        signature: signature,
+        message: message,
+        walletClientType: "MetaMask",
+        connectorType: "metaMask",
+        address: walletAddress
+    )
+)
+```
+
+### Link External Wallet (SIWE)
+
+```swift
+// 1. Initialize SIWE link
+let siweResponse = try await OFSDK.shared.initLinkSiwe(
+    params: OFInitLinkSiweParams(address: walletAddress)
+)
+
+// 2. Get signature, then link
+let result = try await OFSDK.shared.linkWithSiwe(
+    params: OFLinkWithSiweParams(
+        signature: signature,
+        message: message,
+        walletClientType: "MetaMask",
+        connectorType: "metaMask",
+        address: walletAddress,
+        chainId: 1
+    )
+)
+```
+
+### Link / Unlink OAuth Provider
+
+```swift
+// Initialize OAuth linking
+let linkResponse = try await OFSDK.shared.initLinkOAuth(
+    params: OFInitLinkOAuthParams(
+        provider: "google",
+        authToken: accessToken,
+        options: ["redirectTo": AnyCodable("myapp://link")]
+    )
+)
+
+// Poll for OAuth completion
+let result = try await OFSDK.shared.poolOAuth(key: linkResponse!.key!)
+
+// Unlink OAuth provider
+let unlinkResult = try await OFSDK.shared.unlinkOAuth(
+    params: OFUnlinkOAuthParams(provider: "google", authToken: accessToken)
+)
+```
+
+### Link / Unlink External Wallet
+
+```swift
+// Link wallet
+let result = try await OFSDK.shared.linkWallet(
+    params: OFLinkWalletParams(
+        signature: sig, message: msg,
+        walletClientType: "MetaMask", connectorType: "metaMask",
+        authToken: accessToken
+    )
+)
+
+// Unlink wallet
+let unlinkResult = try await OFSDK.shared.unlinkWallet(
+    params: OFUnlinkWalletParams(address: "0x...", authToken: accessToken)
+)
+```
+
+### Add Email
+
+```swift
+let result = try await OFSDK.shared.addEmail(
+    params: OFAddEmailParams(email: "new@example.com", callbackURL: "myapp://verify")
+)
+// result.status: Bool, result.message: String?
+```
+
+### Verify Email OTP
+
+```swift
+try await OFSDK.shared.verifyEmailOtp(
+    params: OFVerifyEmailOtpParams(email: email, otp: otpCode)
 )
 ```
 
@@ -541,6 +651,59 @@ let signature = try await OFSDK.shared.signTypedData(
 let privateKey = try await OFSDK.shared.exportPrivateKey()
 ```
 
+## Embedded Account Management
+
+```swift
+// Get current embedded account
+let account = try await OFSDK.shared.get()
+// Returns OFEmbeddedAccount?
+
+// List all embedded accounts
+let accounts = try await OFSDK.shared.list()
+// Returns [OFEmbeddedAccount]?
+
+// Create a new embedded account
+let account = try await OFSDK.shared.create(
+    params: OFEmbeddedAccountCreateParams(
+        accountType: .smartAccount,
+        chainType: .evm,
+        chainId: 80002,
+        recoveryParams: OFRecoveryParamsDTO(recoveryMethod: .password, password: "pw")
+    )
+)
+
+// Recover an existing embedded account
+let account = try await OFSDK.shared.recover(
+    params: OFEmbeddedAccountRecoverParams(
+        account: "account-id",
+        recoveryParams: OFRecoveryParamsDTO(recoveryMethod: .password, password: "pw")
+    )
+)
+```
+
+## Token Management
+
+```swift
+// Get access token
+let token = try await OFSDK.shared.getAccessToken()  // String?
+
+// Validate and optionally refresh the token
+try await OFSDK.shared.validateAndRefreshToken(forceRefresh: true)
+```
+
+## Session Signature Request
+
+```swift
+let result = try await OFSDK.shared.sendSignatureSessionRequest(
+    params: OFSendSignatureSessionRequestParams(
+        sessionId: "ses_...",
+        signature: signature,
+        optimistic: false
+    )
+)
+// Returns OFSessionResponse?
+```
+
 ## Sign Transaction Intent
 
 ```swift
@@ -559,7 +722,7 @@ let result = try await OFSDK.shared.sendSignatureTransactionIntentRequest(
 
 ```swift
 // Recovery
-enum OFRecoveryMethod: String { case automatic, password, passkey }
+enum OFRecoveryMethod: String { case automatic, password }
 
 // Chain
 enum OFChainType: String { case evm = "EVM", svm = "SVM" }
