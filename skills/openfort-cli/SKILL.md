@@ -57,6 +57,10 @@ Delegated Account (Smart Account via EIP-7702)
   └── Enables account abstraction (gasless transactions)
   └── On-chain delegation happens automatically on first transaction
 
+Smart Account
+  └── listed with: openfort accounts evm list-smart
+  └── ERC-4337 smart accounts
+
 Solana Account
   └── created with: openfort accounts solana create
   └── Separate key management from EVM
@@ -99,12 +103,137 @@ There are two ways to send transactions:
 3. Sign the hash: `accounts evm sign`
 4. Submit signature: `transactions sign`
 
+## CLI Commands Reference
+
+### login
+
+`openfort login` — authenticate via browser and save your API key.
+
+### backend-wallet
+
+- `openfort backend-wallet setup` — generate and register ECDSA P-256 signing keys
+- `openfort backend-wallet revoke` — revoke the current backend wallet signing secret (requires OPENFORT_WALLET_KEY_ID and OPENFORT_WALLET_SECRET)
+- `openfort backend-wallet rotate` — rotate backend wallet signing secret (generates new ECDSA P-256 key pair)
+
+### embedded-wallet
+
+- `openfort embedded-wallet setup` — generate and register embedded wallet (Shield) API keys
+  - Options: `--project <pro_...>` (optional, defaults to OPENFORT_PROJECT_ID)
+  - Requires: OPENFORT_PUBLISHABLE_KEY and OPENFORT_PROJECT_ID
+
+### accounts
+
+- `openfort accounts list` — list all accounts across chains
+  - Options: `--limit`, `--skip`, `--chainType <EVM|SVM>`, `--custody <Developer|User>`
+
+#### accounts evm
+
+- `openfort accounts evm create` — create a new EVM backend wallet
+- `openfort accounts evm list` — list EVM backend wallets (options: `--limit`, `--skip`)
+- `openfort accounts evm list-delegated` — list EVM delegated accounts (options: `--limit`, `--skip`)
+- `openfort accounts evm list-smart` — list EVM smart accounts (options: `--limit`, `--skip`)
+- `openfort accounts evm get <id>` — get an EVM backend wallet by ID or address
+- `openfort accounts evm delete <id>` — delete an EVM backend wallet
+- `openfort accounts evm update <id> --chainId <chain> --implementationType <type>` — upgrade to delegated account (EIP-7702)
+- `openfort accounts evm sign <id> --data <hex>` — sign data with an EVM backend wallet
+- `openfort accounts evm import --privateKey <hex>` — import a private key as an EVM backend wallet
+- `openfort accounts evm export <id>` — export an EVM backend wallet private key
+- `openfort accounts evm send-transaction <id> --chainId <chain> --interactions '<json>' [--policy <pol_...>]` — send a gasless EVM transaction (auto-delegates via EIP-7702 if needed)
+
+#### accounts solana
+
+- `openfort accounts solana create` — create a new Solana backend wallet
+- `openfort accounts solana list` — list Solana backend wallets (options: `--limit`, `--skip`)
+- `openfort accounts solana get <id>` — get a Solana backend wallet by ID or address
+- `openfort accounts solana delete <id>` — delete a Solana backend wallet
+- `openfort accounts solana sign <id> --data <base64>` — sign data with a Solana backend wallet
+- `openfort accounts solana import --privateKey <hex-or-base58>` — import a Solana private key
+- `openfort accounts solana export <id>` — export a Solana backend wallet private key
+- `openfort accounts solana transfer <id> --to <address> --amount <lamports> [--token <sol|usdc|mint-address>] [--cluster <devnet|mainnet-beta>]` — transfer SOL or SPL tokens (cluster defaults to mainnet-beta)
+
+### contracts
+
+- `openfort contracts list` — list registered contracts (options: `--limit`, `--skip`)
+- `openfort contracts create --name <name> --address <0x...> --chainId <chain> [--abi '<json>']` — register a smart contract
+- `openfort contracts get <id>` — get a contract by ID
+- `openfort contracts update <id> [--name <name>] [--address <0x...>] [--chainId <chain>] [--abi '<json>']` — update a contract
+- `openfort contracts delete <id>` — delete a contract
+
+### paymasters
+
+- `openfort paymasters create --address <0x...> [--name <name>] [--url <url>]` — create an ERC-4337 paymaster
+- `openfort paymasters get <id>` — get a paymaster by ID
+- `openfort paymasters update <id> --address <0x...> [--name <name>] [--url <url>]` — update a paymaster
+- `openfort paymasters delete <id>` — delete a paymaster
+
+### policies
+
+- `openfort policies list` — list policies (options: `--limit`, `--skip`, `--scope <project|account|transaction>`, `--enabled <true|false>`)
+- `openfort policies create --scope <project|account|transaction> --rules '<json>' [--description <text>] [--priority <number>]` — create a policy with criteria-based rules
+- `openfort policies get <id>` — get a policy by ID (includes rules)
+- `openfort policies update <id> [--description <text>] [--enabled <true|false>] [--priority <number>] [--rules '<json>']` — update a policy
+- `openfort policies delete <id>` — delete a policy
+- `openfort policies evaluate --operation <operation> [--accountId <acc_...>]` — pre-flight check if an operation would be allowed
+
+### sponsorship
+
+- `openfort sponsorship list` — list fee sponsorships (options: `--limit`, `--skip`, `--enabled <true|false>`)
+- `openfort sponsorship create --policyId <ply_...> [--strategy <pay_for_user|charge_custom_tokens|fixed_rate>] [--name <name>] [--chainId <chain>]` — create a fee sponsorship (strategy defaults to pay_for_user)
+- `openfort sponsorship get <id>` — get a fee sponsorship by ID
+- `openfort sponsorship update <id> [--name <name>] [--strategy <strategy>] [--policyId <ply_...>]` — update a fee sponsorship
+- `openfort sponsorship enable <id>` — enable a fee sponsorship
+- `openfort sponsorship disable <id>` — disable a fee sponsorship
+- `openfort sponsorship delete <id>` — delete a fee sponsorship
+
+### transactions
+
+- `openfort transactions list` — list transaction intents (options: `--limit`, `--skip`)
+- `openfort transactions create --account <acc_...> --chainId <chain> --interactions '<json>' [--policy <pol_...>] [--signedAuthorization <hex>]` — create a transaction intent
+- `openfort transactions get <id>` — get a transaction intent by ID
+- `openfort transactions sign <id> --signature <hex> [--optimistic]` — sign and broadcast a transaction intent
+- `openfort transactions estimate --account <acc_...> --chainId <chain> --interactions '<json>' [--policy <pol_...>]` — estimate gas cost for a transaction
+
+### sessions
+
+- `openfort sessions list --player <pla_...>` — list session keys for a player (options: `--limit`, `--skip`)
+- `openfort sessions create --address <0x...> --chainId <chain> --validAfter <unix> --validUntil <unix> [--player <pla_...>] [--account <acc_...>] [--limit <number>] [--policy <pol_...>] [--whitelist '<json-array>']` — create a session key
+- `openfort sessions get <id>` — get a session key by ID
+- `openfort sessions sign <id> --signature <hex> [--optimistic]` — sign and broadcast a session userOperationHash
+- `openfort sessions revoke --address <0x...> --chainId <chain> [--player <pla_...>] [--policy <pol_...>]` — revoke a session key
+
+### subscriptions
+
+- `openfort subscriptions list` — list webhook subscriptions
+- `openfort subscriptions create --topic <topic> --triggers '<json>'` — create a webhook subscription
+  - Available topics: `transaction_intent.broadcast`, `transaction_intent.successful`, `transaction_intent.cancelled`, `transaction_intent.failed`, `balance.project`, `balance.contract`, `balance.dev_account`, `user.created`, `user.updated`, `user.deleted`, `account.created`, `test`
+  - Trigger types: `webhook`, `email`
+- `openfort subscriptions get <id>` — get a subscription by ID
+- `openfort subscriptions delete <id>` — delete a subscription
+
+#### subscriptions triggers
+
+- `openfort subscriptions triggers list <subscriptionId>` — list triggers for a subscription
+- `openfort subscriptions triggers create <subscriptionId> --target <url-or-email> [--type <webhook|email>]` — create a trigger
+- `openfort subscriptions triggers get <subscriptionId> <triggerId>` — get a trigger by ID
+- `openfort subscriptions triggers delete <subscriptionId> <triggerId>` — delete a trigger
+
+### users
+
+- `openfort users list` — list authenticated users (options: `--limit`, `--skip`, `--email <email>`, `--name <name>`)
+- `openfort users get <id>` — get a user by ID (usr_...)
+- `openfort users delete <id>` — delete a user
+
+### message
+
+- `openfort message hash <message>` — hash a message using keccak256
+
 ## Common Workflows
 
 ### First-Time Setup
 1. `openfort login` — authenticate via browser
 2. `openfort backend-wallet setup` — generate ECDSA P-256 signing keys
-3. `openfort accounts evm create` — create your first wallet
+3. `openfort embedded-wallet setup` — set up embedded wallet (Shield) keys (optional)
+4. `openfort accounts evm create` — create your first wallet
 
 ### Send a Gasless Transaction (End-to-End)
 1. Create a wallet: `openfort accounts evm create`
@@ -129,6 +258,12 @@ Session keys let users approve transactions for a limited time without repeated 
 1. Create: `openfort sessions create --address 0x... --chainId <chain> --validAfter <unix> --validUntil <unix> --player pla_... --account acc_...`
 2. Sign: `openfort sessions sign <id> --signature 0x...`
 3. Revoke: `openfort sessions revoke --address 0x... --chainId <chain> --player pla_...`
+
+### Rotate Wallet Signing Keys
+1. Rotate: `openfort backend-wallet rotate` — generates new ECDSA P-256 key pair and saves to credentials
+
+### Estimate Gas Before Sending
+1. `openfort transactions estimate --account acc_... --chainId <chain> --interactions '[{"to":"0x...","data":"0x...","value":"0"}]'`
 
 ## SDK Integration Points
 
@@ -176,23 +311,29 @@ Understanding ID prefixes helps navigate the system:
 - `pol_` — Sponsorship (fee policy)
 - `con_` — Contract
 - `tin_` — Transaction intent
-- `pla_` — Player (user)
+- `pla_` — Player
+- `usr_` — User
 - `pro_` — Project
 - `ses_` — Session
 - `sub_` — Subscription
+- `tri_` — Trigger
+- `pay_` — Paymaster
 
 ## Configuration
 
 ### Credentials
-Stored at `~/.config/openfort/credentials` (or `$XDG_CONFIG_HOME/openfort/credentials`).
+Stored at `~/.config/openfort/credentials` (or `$XDG_CONFIG_HOME/openfort/credentials`, or `%APPDATA%/openfort/credentials` on Windows).
 
 ### Environment Variables
 | Variable | Description |
 |----------|-------------|
-| `OPENFORT_API_KEY` | Secret API key |
-| `OPENFORT_WALLET_SECRET` | Wallet encryption secret |
-| `OPENFORT_PUBLISHABLE_KEY` | Publishable key for client-side |
+| `OPENFORT_API_KEY` | Secret API key (sk_test_... or sk_live_...) |
+| `OPENFORT_WALLET_SECRET` | Wallet signing secret (base64-encoded ECDSA P-256 private key) |
+| `OPENFORT_PUBLISHABLE_KEY` | Publishable key for client-side ops |
 | `OPENFORT_BASE_URL` | Custom API base URL |
+| `OPENFORT_WALLET_PUBLIC_KEY` | Wallet public key (base64-encoded) |
+| `OPENFORT_WALLET_KEY_ID` | Wallet key ID (ws_...) |
+| `OPENFORT_PROJECT_ID` | Project ID (pro_...) |
 
 ### Global CLI Options
 `--format <toon|json|yaml|md|jsonl>`, `--filter-output <keys>`, `--verbose`, `--schema`
