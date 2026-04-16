@@ -163,7 +163,15 @@ var wallet = await openfort.RecoverEmbeddedWallet(new RecoverEmbeddedWalletReque
 var wallet = await openfort.GetEmbeddedWallet();
 
 // List all wallets (with optional filters)
-var wallets = await openfort.ListWallets(new ListWalletsRequest());
+var wallets = await openfort.ListWallets(new ListWalletsRequest
+{
+    AccountType = AccountType.SMART_ACCOUNT,  // Optional filter
+    ChainType = ChainType.EVM,                // Optional filter
+    ChainId = 80002,                          // Optional filter
+    Limit = 10,                               // Optional pagination
+    Skip = 0,                                 // Optional pagination
+    SortOrder = SortOrdering.DESC             // Optional: ASC or DESC
+});
 ```
 
 ## Authentication
@@ -174,7 +182,9 @@ var wallets = await openfort.ListWallets(new ListWalletsRequest());
 // Sign up
 var authResponse = await openfort.SignUpWithEmailPassword(
     email: "user@example.com",
-    password: "password123"
+    password: "password123",
+    name: "User Name",           // Optional
+    callbackURL: "https://..."   // Optional — email verification callback
 );
 
 // Log in
@@ -214,8 +224,8 @@ await openfort.RequestPhoneOtp("+1234567890");
 // Log in with phone OTP
 var authResponse = await openfort.LogInWithPhoneOtp("+1234567890", "123456");
 
-// Link phone number
-await openfort.LinkPhoneOtp(new LinkPhoneOtpRequest("+1234567890", "123456"));
+// Link phone number (returns AuthResponse)
+var authResponse = await openfort.LinkPhoneOtp(new LinkPhoneOtpRequest("+1234567890", "123456"));
 ```
 
 ### Guest
@@ -288,6 +298,17 @@ var url = await openfort.InitLinkOAuth(OAuthProvider.DISCORD, "https://your-redi
 
 // Unlink OAuth provider
 var user = await openfort.UnlinkOAuth(OAuthProvider.GOOGLE);
+```
+
+### InitializeOAuthOptions
+
+```csharp
+var options = new InitializeOAuthOptions
+{
+    scopes = "email profile",
+    skipBrowserRedirect = true
+};
+var url = await openfort.InitOAuth(OAuthProvider.GOOGLE, "https://your-redirect-url", options);
 ```
 
 Note: OAuth requires browser redirects, which may need platform-specific handling in Unity.
@@ -518,7 +539,7 @@ Additional setup for WebGL builds:
 enum EmbeddedState { NONE, UNAUTHENTICATED, EMBEDDED_SIGNER_NOT_CONFIGURED, CREATING_ACCOUNT, READY }
 
 // Recovery
-enum RecoveryMethod { PASSWORD, AUTOMATIC, PASSKEY }
+enum RecoveryMethod { PASSWORD, AUTOMATIC }
 
 // Chain
 enum ChainType { EVM, SVM }
