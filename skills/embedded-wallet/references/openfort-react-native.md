@@ -414,7 +414,7 @@ const {
 
 ```ts
 import {
-  // Core types
+  // Core types (re-exported from @openfort/openfort-js)
   AccountTypeEnum,
   ChainTypeEnum,
   EmbeddedAccount,
@@ -422,7 +422,6 @@ import {
   RecoveryMethod,
   RecoveryParams,
   AuthResponse,
-  User,
   OAuthProvider,
   OpenfortEvents,
   ThirdPartyOAuthProvider,
@@ -453,6 +452,10 @@ import {
   // Wallet types
   RecoveryMethodDetails,
 } from '@openfort/react-native'
+
+// Note: The User type is NOT re-exported from @openfort/react-native.
+// Import it from @openfort/openfort-js if needed for type annotations:
+import type { User } from '@openfort/openfort-js'
 
 // Standalone utility function
 import { isPasskeyPrfSupported } from '@openfort/react-native'
@@ -826,7 +829,7 @@ const wallet = useEmbeddedSolanaWallet({
 
 ### Discriminated Union States
 
-Same status pattern as Ethereum. Solana wallets are always EOA and work across all networks (mainnet-beta, devnet, testnet):
+Similar status pattern to Ethereum (but `connecting` state does not include `activeWallet`). Solana wallets are always EOA and work across all networks (mainnet-beta, devnet, testnet):
 
 ```ts
 switch (wallet.status) {
