@@ -569,6 +569,7 @@ const decision = await openfort.policies.evaluate({ /* operation details */ })
 | `evmMessage` | `match` | `pattern: string` (RE2 regex) |
 | `evmTypedDataVerifyingContract` | `in`, `not in` | `addresses: Address[]` |
 | `evmTypedDataField` | `in`, `<=`, `match` | `fieldPath: string`, `values?: string[]` (for `in`), `value?: string` (for `<=`/`match`) |
+| `netUSDChange` | `<=`, `>=` | `usdValue: string` (USD value, mainnet only) |
 
 ### Solana Operations & Criteria
 
@@ -610,7 +611,7 @@ Verify webhook signatures from Openfort using timing-safe comparison:
 ```ts
 // In your webhook handler (e.g., Express route)
 app.post('/webhook', async (req, res) => {
-  const signature = req.headers['x-openfort-signature'] as string
+  const signature = req.headers['openfort-signature'] as string
   const body = req.body // raw string body
 
   try {
