@@ -649,6 +649,9 @@ import {
   RecoveryMethod,          // AUTOMATIC, PASSWORD, PASSKEY
   OpenfortEvents,          // ON_AUTH_INIT, ON_AUTH_SUCCESS, ON_AUTH_FAILURE, ON_LOGOUT, ON_OTP_REQUEST, ON_OTP_FAILURE, ON_SWITCH_ACCOUNT, ON_SIGNED_MESSAGE, ON_EMBEDDED_WALLET_CREATED, ON_EMBEDDED_WALLET_RECOVERED
   TokenType,               // ID_TOKEN, CUSTOM_TOKEN
+  AuthType,                // OPENFORT, THIRD_PARTY
+  BasicAuthProvider,       // EMAIL, WALLET
+  SortOrdering,            // ASC, DESC
 
   // Events
   openfortEvents,          // Global event emitter (also available via Openfort.getEventEmitter())
@@ -665,6 +668,7 @@ import {
   type AuthInitPayload,
   type SignedMessagePayload,
   type InitializeOAuthOptions,
+  type AuthActionRequiredResponse,
 
   // EIP-7702 Authorization
   type Authorization,
@@ -705,5 +709,6 @@ import {
   // Utilities
   arrayBufferToBase64URL,
   base64ToArrayBuffer,
+  cryptoDigest,
 } from '@openfort/openfort-js'
 ```
