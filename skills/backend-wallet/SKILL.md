@@ -507,7 +507,7 @@ const sponsorship = await openfort.feeSponsorship.create({
 Policies define rules that control which operations are allowed or rejected. They are evaluated server-side before any signing or transaction execution.
 
 **Key concepts:**
-- **Scope**: `'project'` (all accounts) or `'account'` (single account)
+- **Scope**: `'project'` (all accounts, soft validation — no match = user pays), `'account'` (single account, soft validation), or `'transaction'` (only when explicitly passed, hard validation — no match = tx fails)
 - **Priority**: Higher priority policies evaluated first
 - **Fail-closed**: No matching rule = operation rejected
 - **Rules**: Each policy has 1-10 rules with `action` (`'accept'` | `'reject'`), `operation`, and `criteria` (AND logic)
@@ -538,7 +538,7 @@ const policy = await openfort.policies.create({
 
 ```ts
 // List policies
-const policies = await openfort.policies.list({ scope: 'project', enabled: true })
+const policies = await openfort.policies.list({ scope: ['project'], enabled: true })
 
 // Get by ID
 const policy = await openfort.policies.get('ply_...')
