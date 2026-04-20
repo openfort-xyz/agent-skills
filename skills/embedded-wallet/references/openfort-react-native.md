@@ -394,7 +394,7 @@ const {
 import { useGuestAuth } from '@openfort/react-native'
 
 const {
-  signUpGuest,  // () => create anonymous guest account
+  signUpGuest,  // (options?: GuestHookOptions) => create anonymous guest account
   isLoading, isError, isSuccess, error,
 } = useGuestAuth()
 ```
@@ -405,7 +405,7 @@ const {
 import { useSignOut } from '@openfort/react-native'
 
 const {
-  signOut,  // () => clear auth state
+  signOut,  // (options?: OpenfortHookOptions) => clear auth state
   isLoading, isError, isSuccess, error,
 } = useSignOut()
 ```
@@ -443,6 +443,7 @@ import {
 
   // Passkey error classes
   PASSKEY_ERROR_CODES,
+  PasskeyErrorCode,
   PasskeyAssertionFailedError,
   PasskeyCreationFailedError,
   PasskeyPRFNotSupportedError,
