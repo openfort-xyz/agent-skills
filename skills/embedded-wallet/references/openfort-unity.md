@@ -199,7 +199,10 @@ await openfort.RequestEmailVerification(
 );
 
 // Verify email
-await openfort.VerifyEmail(new VerifyEmailRequest(token: "verification-token"));
+await openfort.VerifyEmail(new VerifyEmailRequest(
+    token: "verification-token",
+    callbackURL: "https://..."  // Optional
+));
 ```
 
 ### Email OTP
@@ -237,7 +240,10 @@ var authResponse = await openfort.SignUpGuest();
 Guest accounts cannot merge into existing accounts — they can only be upgraded. Use `AddEmail()` to upgrade:
 
 ```csharp
-await openfort.AddEmail(new AddEmailRequest("user@example.com"));
+await openfort.AddEmail(new AddEmailRequest(
+    email: "user@example.com",
+    callbackURL: "https://..."  // Optional — email verification callback
+));
 ```
 
 ### Third-Party Auth (Firebase, Supabase, etc.)
@@ -549,6 +555,9 @@ enum AccountType { EOA, SMART_ACCOUNT, DELEGATED_ACCOUNT }
 
 // OAuth providers
 enum OAuthProvider { GOOGLE, TWITTER, APPLE, FACEBOOK, DISCORD, EPIC_GAMES, LINE }
+
+// Sort ordering (for ListWalletsRequest)
+enum SortOrdering { ASC, DESC }
 ```
 
 ## Namespaces
