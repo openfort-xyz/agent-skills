@@ -95,9 +95,9 @@ There are two ways to send transactions:
 
 **Advanced: Manual flow** (when you need fine-grained control)
 1. Upgrade EOA to delegated: `accounts evm update`
-2. Create transaction intent: `transactions create` (returns a signableHash)
-3. Sign the hash: `accounts evm sign`
-4. Submit signature: `transactions sign`
+2. Create transaction intent: `transactions create` (returns a `userOperationHash`)
+3. Sign the hash: `accounts evm sign --data <userOperationHash>`
+4. Submit signature: `transactions sign <tin_id> --signature <hex>`
 
 ## Common Workflows
 
