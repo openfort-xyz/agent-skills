@@ -322,7 +322,7 @@ const {
   signInEmail,                // ({ email, password, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
   signUpEmail,                // ({ email, password, name?, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
   verifyEmail,                // ({ token }) => Promise<EmailVerificationResult>
-  linkEmail,                  // () => void — link email/password to existing account
+  linkEmail,                  // () => void — currently a no-op stub (planned for Auth V2). To link email, use other auth flows.
   requestResetPassword,       // ({ email, emailVerificationRedirectTo? }) => Promise<EmailAuthResult>
   resetPassword,              // ({ password, token }) => Promise<EmailAuthResult>
   reset,                      // () => void — reset flow state to initial
@@ -381,8 +381,8 @@ import { useWalletAuth } from '@openfort/react-native'
 
 const {
   generateSiweMessage,  // ({ wallet, from: { domain, uri } }) => Promise
-  signInWithSiwe,        // ({ walletAddress, signature, messageOverride?, disableSignup? }) => Promise
-  linkSiwe,              // ({ signature, walletAddress, messageOverride? }) => Promise<WalletHookResult>
+  signInWithSiwe,        // ({ walletAddress, signature, messageOverride? }) => Promise — note: messageOverride is functionally required; pass the message returned by generateSiweMessage
+  linkSiwe,              // ({ signature, walletAddress, messageOverride? }) => Promise<WalletHookResult> — messageOverride is functionally required
   isLoading, isError, isSuccess, error,
   isAwaitingSignature, isGeneratingMessage, isSubmittingSignature,
 } = useWalletAuth()
@@ -589,7 +589,7 @@ import { ThirdPartyOAuthProvider } from '@openfort/react-native'
 <OpenfortProvider
   publishableKey={Constants.expoConfig?.extra?.openfortPublishableKey}
   thirdPartyAuth={{
-    provider: ThirdPartyOAuthProvider.Firebase,  // or Supabase, BetterAuth, Oidc, Custom, etc.
+    provider: ThirdPartyOAuthProvider.FIREBASE,  // or SUPABASE, BETTER_AUTH, OIDC, CUSTOM, etc.
     getAccessToken: async () => {
       const token = await auth().currentUser?.getIdToken(false)
       return token ?? null
@@ -599,7 +599,7 @@ import { ThirdPartyOAuthProvider } from '@openfort/react-native'
 />
 ```
 
-Supported: `ThirdPartyOAuthProvider.Firebase`, `.Supabase`, `.BetterAuth`, `.Playfab`, `.Accelbyte`, `.Lootlocker`, `.Oidc`, `.Custom`
+Supported: `ThirdPartyOAuthProvider.FIREBASE`, `.SUPABASE`, `.BETTER_AUTH`, `.PLAYFAB`, `.ACCELBYTE`, `.LOOTLOCKER`, `.OIDC`, `.CUSTOM`
 
 You must sync auth state between your provider and Openfort — when the external user signs in/out, call `getAccessToken` / `signOut` accordingly.
 
