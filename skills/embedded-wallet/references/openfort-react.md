@@ -366,7 +366,7 @@ const config = createConfig(
       [baseSepolia.id]: http(),
     },
     // ssr: true,                                                          // Only for Next.js — enable SSR hydration support
-    // coinbaseWalletPreference: 'smartWalletOnly',                        // Rarely needed — 'all' | 'smartWalletOnly' | 'eoaOnly'
+    // coinbaseWalletPreference: { options: 'smartWalletOnly' },           // Rarely needed — Coinbase Wallet preference object (from @coinbase/wallet-sdk)
     // appIcon: 'https://myapp.com/icon.png',                              // Rarely needed — WalletConnect metadata
     // appDescription: 'My awesome app',                                   // Rarely needed — WalletConnect metadata
     // appUrl: 'https://myapp.com',                                        // Rarely needed — WalletConnect metadata
@@ -417,7 +417,11 @@ type DefaultConfigProps = {
   walletConnectProjectId?: string         // Recommended — WalletConnect Cloud project ID (enables external wallets)
   transports?: Record<number, Transport>  // Recommended for production — custom RPC per chain (default: public http())
   ssr?: boolean                           // Only for Next.js, default false — SSR hydration support
-  coinbaseWalletPreference?: 'all' | 'smartWalletOnly' | 'eoaOnly'  // Rarely needed — Coinbase Wallet mode
+  coinbaseWalletPreference?: {                              // Rarely needed — Coinbase Wallet preference object (from @coinbase/wallet-sdk)
+    options: 'all' | 'smartWalletOnly' | 'eoaOnly'          //   Coinbase Wallet mode
+    keysUrl?: string                                        //   Optional — keys server URL
+    attribution?: { auto: boolean } | { dataSuffix: `0x${string}` }  // Optional — onchain attribution
+  }
   appIcon?: string                        // Rarely needed — icon URL for WalletConnect metadata
   appDescription?: string                 // Rarely needed — description for WalletConnect metadata
   appUrl?: string                         // Rarely needed — URL for WalletConnect metadata
