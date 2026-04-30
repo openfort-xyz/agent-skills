@@ -772,7 +772,7 @@ import {
 | `ValidationError` | `field`, `value` | Server-side input validation failure |
 | `UnknownError` | — | Unclassifiable error |
 
-`APIError.errorType` values: `'unauthorized'`, `'forbidden'`, `'not_found'`, `'bad_request'`, `'conflict'`, `'rate_limited'`, `'bad_gateway'`, `'service_unavailable'`, `'unexpected_error'`
+`APIError.errorType` values: `'unauthorized'`, `'forbidden'`, `'not_found'`, `'bad_request'`, `'conflict'`, `'rate_limited'`, `'bad_gateway'`, `'service_unavailable'`, `'unexpected_error'`, `'unknown'`, `'network_timeout'`, `'network_connection_failed'`, `'network_ip_blocked'`, `'network_dns_failure'` (the `network_*` values are emitted on `NetworkError`, which extends `APIError`)
 
 ### Robust Error Handling Pattern
 
