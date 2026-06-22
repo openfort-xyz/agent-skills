@@ -1,0 +1,62 @@
+name: Sync skills from docs
+
+# Regenerates the per-SDK reference files from the Openfort documentation repo
+# (openfort-xyz/documentation -> public/skills). The documentation is the source
+# of truth; this opens a PR whenever the generated files drift.
+#
+# Requires a "docs-sync" GitHub Environment holding the secret DOCS_SYNC_TOKEN:
+# a least-privilege token with read access to openfort-xyz/documentation (that
+# repo is private). Storing it on the environment scopes the secret to this job.
+# The documentation repo can trigger this on merge by sending a
+# repository_dispatch of type "docs-skills-updated".
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  repository_dispatch:
+    types: [docs-skills-updated]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: docs-sync
+    steps:
+      - name: Checkout agent-skills
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Checkout documentation (public/skills only)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: openfort-xyz/documentation
+          token: ${{ secrets.DOCS_SYNC_TOKEN }}
+          sparse-checkout: public/skills
+          path: _docs
+          persist-credentials: false
+
+      - name: Sync reference files
+        env:
+          DOCS_SKILLS_DIR: _docs/public/skills
+        run: node scripts/sync-skills.mjs
+
+      - name: Open PR if changed
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: skills/**
+          branch: sync/skills-from-docs
+          delete-branch: true
+          commit-message: "chore: sync skill references from documentation"
+          title: "chore: sync skill references from documentation"
+          body: |
+            Automated sync of the per-SDK reference files from
+            `openfort-xyz/documentation` (`public/skills/`).
+
+            Source of truth is the documentation repo — review the content there,
+            not here. See `AGENTS.md` for which files are generated vs. native.

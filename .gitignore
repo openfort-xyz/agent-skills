@@ -1,2 +1,4 @@
 node_modules/
 .DS_Store
+# transient checkout used by the docs sync workflow
+_docs/
