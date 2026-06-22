@@ -1,0 +1,76 @@
+{
+  "skill": "openfort-backend-wallets",
+  "skillPath": "skills/backend-wallet/SKILL.md",
+  "cases": [
+    {
+      "id": "be_create_evm_wallet",
+      "prompt": "How do I create a server-side EVM wallet with Openfort from a Node backend?",
+      "should_trigger": true,
+      "checks": [
+        "Uses the @openfort/openfort-node server SDK, not a client SDK like @openfort/react",
+        "Authenticates with a secret key (sk_test_ or sk_live_), not a publishable key",
+        "References the wallet secret (OPENFORT_WALLET_SECRET) for the two-layer auth needed by mutations",
+        "Does not invent methods that are not part of the Openfort Node SDK"
+      ]
+    },
+    {
+      "id": "be_dev_prod_keys",
+      "prompt": "I created some backend wallets while testing. Can I use them in production?",
+      "should_trigger": true,
+      "checks": [
+        "States that test (sk_test_) and live (sk_live_) keys are isolated environments (testnet vs mainnet)",
+        "Says a wallet created with a test key cannot be used in production / must not custody real funds",
+        "Tells the user to switch to live keys and create fresh wallets for production"
+      ]
+    },
+    {
+      "id": "be_solana_gasless",
+      "prompt": "How do I send a gasless USDC transfer from an Openfort backend wallet on Solana?",
+      "should_trigger": true,
+      "checks": [
+        "Notes that Solana transactions are gasless by default via Kora fee payer",
+        "Mentions that a publishable key is required for Solana operations",
+        "Does not claim the user must fund the wallet with SOL for gas"
+      ]
+    },
+    {
+      "id": "be_policy_scope",
+      "prompt": "How do policy scopes work for Openfort backend wallet operations?",
+      "should_trigger": true,
+      "checks": [
+        "Describes project, account, and transaction scopes",
+        "Explains that transaction scope is hard validation (no match = tx fails) while project/account are soft",
+        "Does not fabricate policy scope names that don't exist"
+      ]
+    },
+    {
+      "id": "be_eip7702",
+      "prompt": "How does EIP-7702 delegation work when sending a transaction from an Openfort backend EVM wallet?",
+      "should_trigger": true,
+      "checks": [
+        "Explains that an EOA is upgraded to a delegated/smart account via EIP-7702",
+        "Notes delegation can happen automatically on the first transaction",
+        "Connects EIP-7702 to enabling gasless / account-abstraction features"
+      ]
+    },
+    {
+      "id": "be_webhook_signature",
+      "prompt": "How do I verify the signature on an incoming Openfort webhook in my Express handler?",
+      "should_trigger": true,
+      "checks": [
+        "Verifies the signature against the raw request body",
+        "Uses a timing-safe comparison",
+        "Reads the signature from the correct Openfort webhook header"
+      ]
+    },
+    {
+      "id": "be_negative_react_modal",
+      "prompt": "How do I render the Openfort login modal with OpenfortButton in my React app?",
+      "should_trigger": false,
+      "checks": [
+        "Does not answer as if backend wallets are the right tool",
+        "Points the user toward the client / embedded-wallet (@openfort/react) path"
+      ]
+    }
+  ]
+}

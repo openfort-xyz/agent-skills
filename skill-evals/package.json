@@ -1,0 +1,20 @@
+{
+  "name": "openfort-skill-evals",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Evals for the Openfort agent skills — measures skill lift with vs. without the skill in context.",
+  "scripts": {
+    "eval": "node run.mjs",
+    "eval:backend": "node run.mjs backend-wallet",
+    "eval:embedded": "node run.mjs embedded-wallet",
+    "eval:openfort": "node run.mjs openfort",
+    "eval:cli": "node run.mjs openfort-cli"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.105.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "skill": "openfort-embedded-wallet",
+  "skillPath": "skills/embedded-wallet/SKILL.md",
+  "cases": [
+    {
+      "id": "ew_react_setup",
+      "prompt": "How do I add Openfort embedded wallets to my React app?",
+      "should_trigger": true,
+      "checks": [
+        "Uses @openfort/react with OpenfortProvider",
+        "Configures a publishable key (pk_test_) and the Shield publishable key",
+        "Does not use a secret key (sk_) anywhere in client-side code"
+      ]
+    },
+    {
+      "id": "ew_dev_prod_keys",
+      "prompt": "Will the embedded wallets my users created in my staging build carry over when I launch to production?",
+      "should_trigger": true,
+      "checks": [
+        "States that test and live publishable keys are isolated (testnet vs mainnet)",
+        "Says test wallets and their recovery (Shield) shares do not carry over to live",
+        "Tells the user to switch to live publishable + Shield keys for production"
+      ]
+    },
+    {
+      "id": "ew_recovery_methods",
+      "prompt": "What wallet recovery options does Openfort offer for embedded wallets?",
+      "should_trigger": true,
+      "checks": [
+        "Mentions automatic recovery and password-based recovery",
+        "Does not invent recovery methods Openfort does not support"
+      ]
+    },
+    {
+      "id": "ew_sdk_selection",
+      "prompt": "I'm building a native iOS app and want Openfort embedded wallets. Which SDK do I use?",
+      "should_trigger": true,
+      "checks": [
+        "Recommends OpenfortSwift / the Swift SDK for native iOS",
+        "Does not recommend @openfort/react or react-native for native iOS"
+      ]
+    },
+    {
+      "id": "ew_react_native",
+      "prompt": "How do I set up Openfort embedded wallets in an Expo / React Native app?",
+      "should_trigger": true,
+      "checks": [
+        "Uses @openfort/react-native",
+        "Configures a publishable key",
+        "Does not mix in the web-only @openfort/react package as the primary SDK"
+      ]
+    },
+    {
+      "id": "ew_solana_headless",
+      "prompt": "Can I use Openfort embedded wallets with Solana in React, and do I need wagmi?",
+      "should_trigger": true,
+      "checks": [
+        "Indicates Solana support uses the headless provider (no wagmi)",
+        "Does not claim wagmi is required for the Solana path"
+      ]
+    },
+    {
+      "id": "ew_negative_backend",
+      "prompt": "I need a server-side wallet to run an automated trading bot with no user present. How do I set that up?",
+      "should_trigger": false,
+      "checks": [
+        "Does not answer as if embedded (client) wallets are correct",
+        "Points the user to backend / developer-custody wallets instead"
+      ]
+    }
+  ]
+}

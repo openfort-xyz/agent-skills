@@ -1,0 +1,61 @@
+{
+  "skill": "openfort-cli",
+  "skillPath": "skills/openfort-cli/SKILL.md",
+  "cases": [
+    {
+      "id": "cli_login",
+      "prompt": "How do I authenticate the Openfort CLI?",
+      "should_trigger": true,
+      "checks": [
+        "Uses `openfort login`",
+        "Does not invent a non-existent auth command"
+      ]
+    },
+    {
+      "id": "cli_create_evm",
+      "prompt": "Which Openfort CLI command creates a new EVM backend wallet?",
+      "should_trigger": true,
+      "checks": [
+        "Uses `openfort accounts evm create`",
+        "Does not fabricate the command path"
+      ]
+    },
+    {
+      "id": "cli_tx_flow",
+      "prompt": "What's the manual flow to send a transaction with the Openfort CLI, including how to sign?",
+      "should_trigger": true,
+      "checks": [
+        "Creating the transaction intent returns a userOperationHash (not a signableHash)",
+        "Signs the userOperationHash with `accounts evm sign`",
+        "Submits the signature with `transactions sign`"
+      ]
+    },
+    {
+      "id": "cli_wallet_types",
+      "prompt": "What wallet types does Openfort support and which does the CLI mainly manage?",
+      "should_trigger": true,
+      "checks": [
+        "Lists embedded, global, and backend wallets",
+        "States the CLI primarily manages backend wallets"
+      ]
+    },
+    {
+      "id": "cli_dev_prod",
+      "prompt": "I logged into the Openfort CLI with my test key and created wallets. Are these safe to use in production?",
+      "should_trigger": true,
+      "checks": [
+        "Explains test keys operate on testnet and live keys on mainnet, and the two are isolated",
+        "Says test-created wallets must not hold production funds and to re-authenticate with a live key + create fresh wallets"
+      ]
+    },
+    {
+      "id": "cli_negative_react",
+      "prompt": "How do I configure the OpenfortProvider component in my Next.js app?",
+      "should_trigger": false,
+      "checks": [
+        "Does not answer as if the CLI is the right tool",
+        "Points the user to the React / embedded-wallet SDK instead"
+      ]
+    }
+  ]
+}
