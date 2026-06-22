@@ -35,6 +35,13 @@ references:
 
 # Openfort Backend Wallets (Developer Custody)
 
+> ⚠️ **Test keys vs. live keys — read before creating any wallet.**
+> Openfort runs two fully isolated universes: **test mode** (`sk_test_…` / `pk_test_…`, testnet only) and **live mode** (`sk_live_…` / `pk_live_…`, mainnet, real funds). Objects created in one universe **cannot** be read, signed with, or recovered from the other.
+> - A wallet created with a **test (dev) secret key exists only on testnet**. It is **not** usable in production and must **never** custody or move real funds.
+> - To go to production, switch to your **live** secret key and create **fresh** wallets — never migrate or reuse test wallets across modes.
+> - Secret keys (`sk_…`) are server-side only. Never commit them or expose them to a client.
+> See https://openfort.io/docs/configuration/api-keys.
+
 Backend wallets are server-controlled EOAs for automated blockchain operations — no user interaction required. Private keys are stored in **hardware-backed secure enclaves** and never leave the secure environment.
 
 **When to use backend wallets** (vs embedded wallets):
@@ -610,7 +617,7 @@ Verify webhook signatures from Openfort using timing-safe comparison:
 ```ts
 // In your webhook handler (e.g., Express route)
 app.post('/webhook', async (req, res) => {
-  const signature = req.headers['x-openfort-signature'] as string
+  const signature = req.headers['openfort-signature'] as string
   const body = req.body // raw string body
 
   try {

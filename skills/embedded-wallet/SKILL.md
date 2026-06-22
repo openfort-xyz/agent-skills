@@ -32,6 +32,13 @@ references:
 
 # Openfort Embedded Wallet Setup
 
+> ⚠️ **Test keys vs. live keys — read before shipping.**
+> Openfort runs two fully isolated universes: **test mode** (`pk_test_…`, testnet only) and **live mode** (`pk_live_…`, mainnet, real funds). Wallets and their recovery (Shield) configuration in one universe **cannot** be accessed from the other.
+> - Wallets created with your **test (dev) publishable key live only on testnet** and must **never** be relied on for real user funds.
+> - To go to production, switch to your **live** publishable key (and live Shield keys) — users get **fresh** wallets; test wallets and their recovery shares do not carry over.
+> - The publishable key is client-safe; never ship a secret (`sk_…`) key to the browser or app.
+> See https://openfort.io/docs/configuration/api-keys.
+
 Embedded wallets provide a seamless experience by abstracting away wallet management. Users interact with your app without needing to understand private keys, seed phrases, or blockchain concepts.
 
 ## Choose Your SDK

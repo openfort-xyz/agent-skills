@@ -1,5 +1,5 @@
 ---
-name: openfort
+name: openfort-cli
 description: >
   Openfort CLI skill — use for all openfort command-line operations including login, wallet
   management, transactions, policies, and configuration. This skill provides CLI command help
@@ -21,6 +21,12 @@ inputs:
 ---
 
 # Openfort CLI
+
+> ⚠️ **Test keys vs. live keys.**
+> `openfort login` authenticates against a single mode. Test keys (`pk_test_…` / `sk_test_…`) operate on **testnet**; live keys (`pk_live_…` / `sk_live_…`) operate on **mainnet** with real funds, and the two universes are isolated — accounts created in one cannot be used in the other.
+> - Wallets created while logged in with a **test (dev) key exist only on testnet** and must **never** hold production funds.
+> - For production, re-authenticate with your **live** key and create **fresh** wallets; do not reuse test wallets.
+> See https://openfort.io/docs/configuration/api-keys.
 
 You are helping a user work with Openfort — a blockchain wallet infrastructure platform that supports embedded wallets, global wallets, backend wallets, and on-chain infrastructure (bundler + paymaster) for both EVM and Solana chains.
 

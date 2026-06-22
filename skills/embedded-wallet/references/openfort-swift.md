@@ -9,6 +9,13 @@ Complete guide for setting up `OpenfortSwift` in iOS applications.
 
 ---
 
+## Requirements
+
+- **Keychain access** — the SDK stores session state in the iOS Keychain. Add the **Keychain Sharing** capability (target → Signing & Capabilities). On the Simulator, run a *signed* build; an unsigned app gets `errSecMissingEntitlement` (-34018) and `setupSDK()` throws `OFError.keychainInaccessible`.
+- **Allowed app origin** — add your **bundle identifier** to the app client in the dashboard (Account Management → Configuration → Security). Otherwise the embedded wallet fails with "Failed to establish iFrame connection." See https://www.openfort.io/docs/configuration/native-apps.
+
+---
+
 ## Installation
 
 Add via Swift Package Manager in Xcode. Package URL:
@@ -69,6 +76,12 @@ struct MyApp: App {
     }
 }
 ```
+
+> `setupSDK()` returns *before* the WebView bridge finishes loading. Await readiness before your first call:
+> ```swift
+> try await OFSDK.shared.waitUntilReady()
+> ```
+> Or observe the `.openfortReady` notification (`.openfortInitError` on failure).
 
 ### Third-Party Auth Setup
 
@@ -374,7 +387,7 @@ let token = try await OFSDK.shared.getAccessToken()  // String?
 
 // Get current user
 let user = try await OFSDK.shared.getUser()
-// user.id, user.email, user.createdAt, user.linkedAccounts
+// user.id, user.email, user.isAnonymous, user.createdAt, user.linkedAccounts
 
 // Log out
 try await OFSDK.shared.logOut()
@@ -423,25 +436,36 @@ struct OFGetEthereumProviderParams {
 }
 ```
 
+### Making Requests
+
+The provider's `async` `request(method:params:)` returns the result as a `String` (e.g. a transaction hash). It is the single JSON-RPC entry point — the SDK has no third-party Web3 dependency.
+
+```swift
+// Send a transaction (returns tx hash)
+let txHash = try await provider.request(
+    method: "eth_sendTransaction",
+    params: [["from": "0x...", "to": "0x...", "value": "0x0", "data": "0x"]]
+)
+
+// Read calls
+let chainId = try await provider.request(method: "eth_chainId", params: [])
+```
+
+`params` is `[Any]` and mirrors the JSON-RPC shape of each method. On error the call throws an `OFProviderError` whose `localizedDescription` carries the underlying provider message.
+
 ### Send Transaction
 
 ```swift
-let tx: [String: String] = [
-    "to": "0x...",
-    "from": "0x...",
-    "value": "0x8ac7230489e80000",  // 10 ETH in wei hex
-    "data": "0x",
-]
-let request = RPCRequest<[[String: String]]>(
-    id: 1, jsonrpc: "2.0",
+let txHash = try await provider.request(
     method: "eth_sendTransaction",
-    params: [tx]
+    params: [[
+        "to": "0x...",
+        "from": "0x...",
+        "value": "0x8ac7230489e80000",  // 10 ETH in wei hex
+        "data": "0x",
+    ]]
 )
-provider.send(request: request) { (resp: Web3Response<String>) in
-    if let txHash = resp.result {
-        print("Transaction: \(txHash)")
-    }
-}
+print("Transaction: \(txHash ?? "")")
 ```
 
 ### Sponsored Transaction
@@ -452,41 +476,32 @@ Pass `policy` to `getEthereumProvider` and omit `gas`/`gasPrice` from the transa
 let provider = try await OFSDK.shared.getEthereumProvider(
     params: OFGetEthereumProviderParams(policy: "YOUR_POLICY_ID")
 )
-let tx: [String: String] = [
-    "to": "0x...",
-    "from": "0x...",
-    "value": "0x8ac7230489e80000",
-    "data": "0x",
-]
-// No gas/gasPrice — sponsored by policy
+let txHash = try await provider?.request(
+    method: "eth_sendTransaction",
+    params: [[
+        "to": "0x...",
+        "from": "0x...",
+        "value": "0x8ac7230489e80000",
+        "data": "0x",
+        // No gas/gasPrice — sponsored by policy
+    ]]
+)
 ```
 
 ### Switch Chain
 
 ```swift
-let request = RPCRequest<[[String: String]]>(
-    id: 1, jsonrpc: "2.0",
+_ = try await provider.request(
     method: "wallet_switchEthereumChain",
     params: [["chainId": "0x14a34"]]  // Base Sepolia
 )
-provider.send(request: request) { (resp: Web3Response<String>) in
-    // Chain switched
-}
 ```
 
 ### Get Current Chain
 
 ```swift
-let request = RPCRequest<[String]>(
-    id: 1, jsonrpc: "2.0",
-    method: "eth_chainId",
-    params: []
-)
-provider.send(request: request) { (resp: Web3Response<String>) in
-    if let hex = resp.result {
-        let chainId = Int(hex.dropFirst(2), radix: 16) ?? -1
-    }
-}
+let hex = try await provider.request(method: "eth_chainId", params: [])
+let chainId = hex.flatMap { Int($0.dropFirst(2), radix: 16) } ?? -1
 ```
 
 ## Sign Message (EIP-191)

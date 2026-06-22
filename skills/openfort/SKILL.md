@@ -26,6 +26,8 @@ references:
 
 Skill for navigating Openfort documentation, browsing SDK source code, and executing platform operations via MCP tools.
 
+> ⚠️ **Test vs. live keys.** Openfort has two isolated universes: **test mode** (`*_test_*`, testnet) and **live mode** (`*_live_*`, mainnet, real funds). Wallets/accounts created with **test (dev) keys exist only on testnet** and must **never** be used in production — go live with **live** keys and **fresh** wallets. See https://openfort.io/docs/configuration/api-keys.
+
 ## Capabilities
 
 - Navigate Openfort documentation and SDKs

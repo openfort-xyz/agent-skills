@@ -1,0 +1,61 @@
+{
+  "skill": "openfort",
+  "skillPath": "skills/openfort/SKILL.md",
+  "cases": [
+    {
+      "id": "of_docs_lookup",
+      "prompt": "Where should I look to understand how Openfort fee sponsorship works?",
+      "should_trigger": true,
+      "checks": [
+        "Directs the user to Openfort documentation / the MCP docs tools",
+        "Describes fee sponsorship as sending transactions without the wallet holding native gas tokens"
+      ]
+    },
+    {
+      "id": "of_product_distinction",
+      "prompt": "What's the difference between Openfort embedded wallets and backend wallets?",
+      "should_trigger": true,
+      "checks": [
+        "Embedded = user-controlled / client-side wallets",
+        "Backend = developer-controlled / server-side wallets for automation and agents",
+        "Does not conflate the two"
+      ]
+    },
+    {
+      "id": "of_source_repos",
+      "prompt": "Which Openfort SDK repositories can I browse for source code?",
+      "should_trigger": true,
+      "checks": [
+        "Lists real Openfort repos such as openfort-js, openfort-react, react-native, openfort-node, swift-sdk, or openfort-csharp-unity",
+        "Does not invent repositories that don't exist"
+      ]
+    },
+    {
+      "id": "of_policies",
+      "prompt": "What are Openfort policies and what can they apply to?",
+      "should_trigger": true,
+      "checks": [
+        "Describes policies as rules/conditions that must be fulfilled",
+        "Notes they can apply to fee sponsorship and/or backend wallet operations"
+      ]
+    },
+    {
+      "id": "of_dev_prod",
+      "prompt": "What do I need to know about Openfort test vs live API keys?",
+      "should_trigger": true,
+      "checks": [
+        "Explains test mode (testnet) vs live mode (mainnet) as isolated environments",
+        "Warns that wallets created with test keys should not be used in production"
+      ]
+    },
+    {
+      "id": "of_negative_pricing",
+      "prompt": "What is Openfort's enterprise pricing per monthly active wallet?",
+      "should_trigger": false,
+      "checks": [
+        "Does not fabricate specific pricing numbers",
+        "Points the user to Openfort's site / sales rather than inventing figures"
+      ]
+    }
+  ]
+}
