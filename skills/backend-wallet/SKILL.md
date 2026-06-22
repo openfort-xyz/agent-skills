@@ -617,7 +617,7 @@ Verify webhook signatures from Openfort using timing-safe comparison:
 ```ts
 // In your webhook handler (e.g., Express route)
 app.post('/webhook', async (req, res) => {
-  const signature = req.headers['x-openfort-signature'] as string
+  const signature = req.headers['openfort-signature'] as string
   const body = req.body // raw string body
 
   try {
