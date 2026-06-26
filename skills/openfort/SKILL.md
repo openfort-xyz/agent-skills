@@ -15,7 +15,7 @@ metadata:
   homepage: https://openfort.io/docs
   source: https://github.com/openfort-xyz/agent-skills
 inputs:
-  - name: OPENFORT_API_KEY
+  - name: OPENFORT_SECRET_KEY
     description: "Openfort API key for CLI authentication (run 'openfort login' to configure)"
     required: false
 references:

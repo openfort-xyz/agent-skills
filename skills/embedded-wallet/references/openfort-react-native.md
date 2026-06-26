@@ -101,8 +101,8 @@ export default {
     version: "1.0.0",
     platforms: ["ios", "android"],
     extra: {
-      openfortPublishableKey: process.env.OPENFORT_PROJECT_PUBLISHABLE_KEY || "pk_test_...",
-      openfortShieldPublishableKey: process.env.OPENFORT_SHIELD_PUBLISHABLE_KEY || "your-shield-publishable-key",
+      openfortPublishableKey: process.env.OPENFORT_PUBLISHABLE_KEY || "pk_test_...",
+      openfortShieldPublishableKey: process.env.SHIELD_PUBLISHABLE_KEY || "your-shield-publishable-key",
       openfortShieldRecoveryEndpoint: process.env.OPENFORT_SHIELD_RECOVERY_ENDPOINT || "https://your-backend.com/api/protected-create-encryption-session",
       openfortPolicyId: process.env.OPENFORT_POLICY_ID || "pol_...",
       // For passkey recovery:
@@ -115,8 +115,8 @@ export default {
 
 ```bash
 # .env
-OPENFORT_PROJECT_PUBLISHABLE_KEY=pk_test_...
-OPENFORT_SHIELD_PUBLISHABLE_KEY=your-shield-publishable-key
+OPENFORT_PUBLISHABLE_KEY=pk_test_...
+SHIELD_PUBLISHABLE_KEY=your-shield-publishable-key
 OPENFORT_SHIELD_RECOVERY_ENDPOINT=https://your-backend.com/api/protected-create-encryption-session
 OPENFORT_POLICY_ID=pol_...
 ```

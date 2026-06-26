@@ -19,7 +19,7 @@ inputs:
   - name: OPENFORT_PUBLISHABLE_KEY
     description: "Openfort Publishable Key (pk_test_...) — identifies your project (client-safe)"
     required: true
-  - name: OPENFORT_SHIELD_KEY
+  - name: SHIELD_PUBLISHABLE_KEY
     description: "Shield Publishable Key (your-shield-publishable-key) — for embedded wallet encryption"
     required: true
 references:
