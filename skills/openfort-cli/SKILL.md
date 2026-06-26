@@ -15,7 +15,7 @@ metadata:
   homepage: https://openfort.io/docs
   source: https://github.com/openfort-xyz/agent-skills
 inputs:
-  - name: OPENFORT_API_KEY
+  - name: OPENFORT_SECRET_KEY
     description: "Openfort API key for CLI authentication (run 'openfort login' to configure)"
     required: true
 ---
@@ -195,7 +195,7 @@ Stored at `~/.config/openfort/credentials` (or `$XDG_CONFIG_HOME/openfort/creden
 ### Environment Variables
 | Variable | Description |
 |----------|-------------|
-| `OPENFORT_API_KEY` | Secret API key |
+| `OPENFORT_SECRET_KEY` | Secret API key |
 | `OPENFORT_WALLET_SECRET` | Wallet encryption secret |
 | `OPENFORT_PUBLISHABLE_KEY` | Publishable key for client-side |
 | `OPENFORT_BASE_URL` | Custom API base URL |

@@ -17,7 +17,7 @@ metadata:
   homepage: https://openfort.io/docs/products/server
   source: https://github.com/openfort-xyz/agent-skills
 inputs:
-  - name: OPENFORT_API_KEY
+  - name: OPENFORT_SECRET_KEY
     description: "Openfort API Secret Key (sk_test_... or sk_live_...) for server-side authentication"
     required: true
   - name: OPENFORT_WALLET_SECRET
@@ -67,7 +67,7 @@ npm install @solana/kit @solana-program/system @solana-program/compute-budget @s
 ### Environment Variables
 
 ```env
-OPENFORT_API_KEY=sk_test_...            # Secret API key (required)
+OPENFORT_SECRET_KEY=sk_test_...            # Secret API key (required)
 OPENFORT_WALLET_SECRET=...              # Base64-encoded EC P-256 private key (required for mutations)
 OPENFORT_PUBLISHABLE_KEY=pk_test_...    # Required for Solana operations (Kora gasless)
 OPENFORT_BASE_URL=https://api.openfort.io  # Optional, defaults to production
@@ -78,13 +78,13 @@ OPENFORT_BASE_URL=https://api.openfort.io  # Optional, defaults to production
 ```ts
 import Openfort from '@openfort/openfort-node'
 
-const openfort = new Openfort(process.env.OPENFORT_API_KEY!, {
+const openfort = new Openfort(process.env.OPENFORT_SECRET_KEY!, {
   walletSecret: process.env.OPENFORT_WALLET_SECRET!,
   publishableKey: process.env.OPENFORT_PUBLISHABLE_KEY,
 })
 
 // Or use env vars directly (auto-detected):
-// OPENFORT_API_KEY, OPENFORT_WALLET_SECRET, OPENFORT_PUBLISHABLE_KEY
+// OPENFORT_SECRET_KEY, OPENFORT_WALLET_SECRET, OPENFORT_PUBLISHABLE_KEY
 const openfort = new Openfort()
 ```
 
@@ -676,7 +676,7 @@ const estimate = await openfort.transactionIntents.estimateCost({
 ```ts
 import Openfort from '@openfort/openfort-node'
 
-const openfort = new Openfort(process.env.OPENFORT_API_KEY!, {
+const openfort = new Openfort(process.env.OPENFORT_SECRET_KEY!, {
   walletSecret: process.env.OPENFORT_WALLET_SECRET!,
   publishableKey: process.env.OPENFORT_PUBLISHABLE_KEY,
 })

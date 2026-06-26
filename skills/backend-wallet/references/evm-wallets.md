@@ -183,7 +183,7 @@ account.signTypedData(params)       // EIP-712 typed data → Hex
 ```ts
 import Openfort from '@openfort/openfort-node'
 
-const openfort = new Openfort(process.env.OPENFORT_API_KEY!, {
+const openfort = new Openfort(process.env.OPENFORT_SECRET_KEY!, {
   walletSecret: process.env.OPENFORT_WALLET_SECRET!,
   publishableKey: process.env.OPENFORT_PUBLISHABLE_KEY,
 })
