@@ -49,6 +49,15 @@
       ]
     },
     {
+      "id": "of_deprecated_kit_package",
+      "prompt": "How do I install Openfort Kit in my React app? Give me the npm install command.",
+      "should_trigger": true,
+      "checks": [
+        "Installs `@openfort/react` (the current package), not the deprecated `@openfort/openfort-kit`",
+        "Does not present `@openfort/openfort-kit` as a current, installable package"
+      ]
+    },
+    {
       "id": "of_negative_pricing",
       "prompt": "What is Openfort's enterprise pricing per monthly active wallet?",
       "should_trigger": false,
