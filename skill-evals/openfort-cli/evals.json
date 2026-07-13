@@ -49,6 +49,15 @@
       ]
     },
     {
+      "id": "cli_agent_onboarding_route",
+      "prompt": "I'm an AI agent setting up Openfort from scratch for a new project. Where's the fastest place to start?",
+      "should_trigger": true,
+      "checks": [
+        "Points to the Openfort CLI as the agent-first entry point (`npm i -g @openfort/cli`, then `openfort login`)",
+        "Does not require manually copying API keys from the dashboard to get started"
+      ]
+    },
+    {
       "id": "cli_negative_react",
       "prompt": "How do I configure the OpenfortProvider component in my Next.js app?",
       "should_trigger": false,
