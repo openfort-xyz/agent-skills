@@ -128,7 +128,7 @@ There are two ways to send transactions:
 
 ### Set Up Webhooks
 1. Create subscription: `openfort subscriptions create --topic transaction_intent.successful --triggers '[{"type":"webhook","target":"https://..."}]'`
-2. Available topics: `transaction_intent.broadcast`, `transaction_intent.successful`, `transaction_intent.cancelled`, `transaction_intent.failed`, `balance.project`, `balance.contract`, `balance.dev_account`, `user.created`, `user.updated`, `user.deleted`, `account.created`, `test`
+2. Available topics: `transaction_intent.broadcast`, `transaction_intent.successful`, `transaction_intent.cancelled`, `transaction_intent.failed`, `balance.project`, `balance.contract`, `balance.dev_account`, `user.created`, `user.updated`, `user.deleted`, `account.created`, `solana_transaction.broadcast`, `solana_transaction.successful`, `solana_transaction.failed`, `funding.session.updated`, `transaction.submitted`, `transaction.succeeded`, `transaction.failed`, `test`
 
 ### Session Keys (Delegated Signing)
 Session keys let users approve transactions for a limited time without repeated confirmations:
