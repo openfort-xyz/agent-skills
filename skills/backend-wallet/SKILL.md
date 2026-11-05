@@ -1,4 +1,4 @@
----
+<img width="1274" height="736" alt="image" src="https://github.com/user-attachments/assets/56ba30c7-b03c-4b9c-90da-4d62631c4b97" />---
 name: openfort-backend-wallets
 description: >
   Create and operate Openfort backend wallets (developer custody) for EVM and Solana from server-side code.
@@ -607,9 +607,39 @@ import {
 // Validate before sending
 const parsed = CreatePolicyBodySchema.parse(myPolicyInput)
 ```
+### Pre-Flight Agent Mandate & Spend Guardrail (DACS-Standard §9.5.7 / §14.4)
+
+When operating autonomous AI agent wallets with Openfort backend keys, pair Openfort's server-side Policy Engine with a pre-flight **DACS-Standard** (`§9.5.7 X402-1..X402-4` & `§14.4 DACS-4 Settle`) mandate check before calling `sendTransaction` or `transfer`:
+
+```ts
+interface DacsMandateMeta {
+  dacsMandate?: string
+  dacsSessionId?: string
+  dacsMaxAmount?: bigint | string
+}
+
+export function assertDacsSpendMandate(
+  requestedAmount: bigint,
+  meta?: DacsMandateMeta,
+): void {
+  if (!meta?.dacsMandate && !meta?.dacsSessionId) return // Unmanaged call passes through
+  if (meta.dacsMaxAmount !== undefined && requestedAmount > BigInt(meta.dacsMaxAmount)) {
+    throw new Error(
+      `[DACS-Standard §9.5.7] Settlement aborted: amount (${requestedAmount}) exceeds mandate ceiling (${meta.dacsMaxAmount}).`,
+    )
+  }
+}
+
+// Usage prior to Openfort EVM / Solana backend execution:
+assertDacsSpendMandate(BigInt(interaction.value ?? '0'), agentMandateMeta)
+const result = await openfort.accounts.evm.backend.sendTransaction({
+  account,
+  chainId: 8453,
+  interactions: [interaction],
+  policy: 'pol_...',
+})
 
 ---
-
 ## Webhooks
 
 Verify webhook signatures from Openfort using timing-safe comparison:
