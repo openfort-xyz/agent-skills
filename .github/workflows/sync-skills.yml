@@ -27,12 +27,12 @@ jobs:
     environment: docs-sync
     steps:
       - name: Checkout agent-skills
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.0
         with:
           persist-credentials: false
 
       - name: Checkout documentation (public/skills only)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.0
         with:
           repository: openfort-xyz/documentation
           token: ${{ secrets.DOCS_SYNC_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
         run: node scripts/sync-skills.mjs
 
       - name: Open PR if changed
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           add-paths: skills/**
